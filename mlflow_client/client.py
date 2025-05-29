@@ -48,7 +48,7 @@ class MockAPI(APIClientInterface):
 
         inputs = {
             'neighbourhood': {
-                'name': 'neighbourhood',
+                'name': 'Neighbourhood',
                 'type': 'categorical',
                 'options': ['1 arrondissement', '2 arrondissement'],
             },
@@ -81,7 +81,7 @@ class MockAPI(APIClientInterface):
                 RegisteredModelTag(key="author", value="Santos Dumont"),
                 RegisteredModelTag(key="algorithm", value="Random Forest"),
                 RegisteredModelTag(key="data_year", value=2025),
-                RegisteredModelTag(key="inputs", value=inputs)
+                RegisteredModelTag(key="inputs", value=json.dumps(inputs))
             ],
             aliases=[]
         )
@@ -98,7 +98,7 @@ class MockAPI(APIClientInterface):
                 RegisteredModelTag(key="author", value="Edith Piaf"),
                 RegisteredModelTag(key="algorithm", value="Boosting"),
                 RegisteredModelTag(key="data_year", value=2023),
-                RegisteredModelTag(key="inputs", value=inputs)
+                RegisteredModelTag(key="inputs", value=json.dumps(inputs))
             ],
             aliases=[]
         )
