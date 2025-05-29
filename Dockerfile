@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.13
 
 WORKDIR /app
 
@@ -11,4 +11,4 @@ COPY . .
 EXPOSE 8080
 
 # Comando para rodar a app
-CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
+# CMD ["streamlit", "run", "./app/main.py", "--server.port=8080", "--server.address=0.0.0.0"]
