@@ -17,7 +17,6 @@ import requests
 import json
 from mlflow.entities.model_registry import RegisteredModel
 
-
 class APIClientInterface:
     def get_models(self) -> list[RegisteredModel]:
         """
@@ -55,7 +54,7 @@ class MockAPI(APIClientInterface):
             latest_versions=[],
             tags=[
                 RegisteredModelTag(key="country", value="Brazil"),
-                RegisteredModelTag(key="city", value=json.dumps(["São José dos Campos", "Jacareí", "Taubaté"]))
+                RegisteredModelTag(key="cities", value=json.dumps(["São José dos Campos", "Jacareí", "Taubaté"]))
             ],
             aliases=[]
         )
@@ -68,7 +67,7 @@ class MockAPI(APIClientInterface):
             latest_versions=[],
             tags=[
                 RegisteredModelTag(key="country", value="France"),
-                RegisteredModelTag(key="city", value=json.dumps(["Paris"]))
+                RegisteredModelTag(key="cities", value=json.dumps(["Paris"]))
             ],
             aliases=[]
         )

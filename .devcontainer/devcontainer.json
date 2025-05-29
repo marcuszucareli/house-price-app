@@ -9,8 +9,16 @@
 		"dockerfile": "../Dockerfile"
 	},
 	"runArgs": [
-    	"--env-file", "../.env"
-  	]
+    	"--env-file", ".env"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.vscode-pylance",
+				"ms-python.debugpy"
+			]
+		}
+	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

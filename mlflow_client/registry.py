@@ -12,7 +12,7 @@ def get_places():
         if country not in places.keys():
             places[country] = []
         
-        cities_list = json.loads(model.tags['city'])
+        cities_list = json.loads(model.tags['cities'])
         for city in cities_list:
             if city not in places[country]:
                 places[country].append(city)
