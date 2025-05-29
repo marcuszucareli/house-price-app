@@ -46,6 +46,29 @@ class MockAPI(APIClientInterface):
         import time
         from mlflow.entities.model_registry import RegisteredModelTag
 
+        inputs = {
+            'neighbourhood': {
+                'name': 'neighbourhood',
+                'type': 'categorical',
+                'options': ['1 arrondissement', '2 arrondissement'],
+            },
+            'is_new': {
+                'name': 'Old or New?',
+                'type': 'bool',
+                'options': None
+            },
+            'n_bedrooms': {
+                'name': 'Number of Bedrooms',
+                'type': 'int',
+                'options': None
+            },
+            'square': {
+                'name': 'Size (m²)',
+                'type': 'float',
+                'options': None
+            },
+        }
+    
         self._mock_model_1 = RegisteredModel(
             name="mock_model",
             creation_timestamp=1234567890,
@@ -54,7 +77,11 @@ class MockAPI(APIClientInterface):
             latest_versions=[],
             tags=[
                 RegisteredModelTag(key="country", value="Brazil"),
-                RegisteredModelTag(key="cities", value=json.dumps(["São José dos Campos", "Jacareí", "Taubaté"]))
+                RegisteredModelTag(key="cities", value=json.dumps(["São José dos Campos", "Jacareí", "Taubaté"])),
+                RegisteredModelTag(key="author", value="Santos Dumont"),
+                RegisteredModelTag(key="algorithm", value="Random Forest"),
+                RegisteredModelTag(key="data_year", value=2025),
+                RegisteredModelTag(key="inputs", value=inputs)
             ],
             aliases=[]
         )
@@ -67,7 +94,11 @@ class MockAPI(APIClientInterface):
             latest_versions=[],
             tags=[
                 RegisteredModelTag(key="country", value="France"),
-                RegisteredModelTag(key="cities", value=json.dumps(["Paris"]))
+                RegisteredModelTag(key="cities", value=json.dumps(["Paris", "Lyon"])),
+                RegisteredModelTag(key="author", value="Edith Piaf"),
+                RegisteredModelTag(key="algorithm", value="Boosting"),
+                RegisteredModelTag(key="data_year", value=2023),
+                RegisteredModelTag(key="inputs", value=inputs)
             ],
             aliases=[]
         )
