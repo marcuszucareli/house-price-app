@@ -27,6 +27,9 @@ def update_city():
         st.session_state['inputs'] = {}
 
 
+def submit():
+    print(st.session_state)
+
 # Get list of available places
 models = get_models()
 
@@ -70,7 +73,7 @@ st.markdown("""
 
 In this app, you can evaluate properties from various cities around the world!
             
-Start by choosing a **country**.
+### Start by choosing a **country**:
 """)
 
 # Country selectbox
@@ -78,21 +81,24 @@ st.selectbox('Country', countries, key='country')
 
 # City selectbox
 if st.session_state['country'] != '':
-    st.markdown('Now choose a **city**')
+    st.markdown('### Now choose a **city**:')
     st.selectbox('City', [''] + places[st.session_state['country']], on_change=update_city, key='city')
 
 # Input model parameters
 if st.session_state['city'] != '' and \
     st.session_state['country'] != '':
-    st.markdown('Now fill the details about the property you want to evaluate bellow.')
+    st.markdown('### Now fill the details about the property you want to evaluate bellow:')
 
-    for input, data in st.session_state['inputs'].items():
-        match data['type']:
-            case 'categorical':
-                st.selectbox(data['name'], data['options'], key=input)
-            case 'bool':
-                st.toggle(data['name'], value=False, key=input)
-            case 'int':
-                st.number_input(data['name'], step=1, key=input, min_value=0)
-            case 'float':
-                st.number_input(data['name'], step=.01, key=input, min_value=0.00)
+    with st.form('form_inputs', clear_on_submit=True):
+        for input, data in st.session_state['inputs'].items():
+            match data['type']:
+                case 'categorical':
+                    st.selectbox(data['name'], data['options'], key=input)
+                case 'bool':
+                    st.toggle(data['name'], value=False, key=input)
+                case 'int':
+                    st.number_input(data['name'], step=1, key=input, min_value=0)
+                case 'float':
+                    st.number_input(data['name'], step=.01, key=input, min_value=0.00)
+        
+        st.form_submit_button('Evaluate My Property', on_click=submit, type='primary')
