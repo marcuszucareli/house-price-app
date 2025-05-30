@@ -1,6 +1,12 @@
 import streamlit as st
 from mlflow_client.registry import Models
 
+st.set_page_config(
+    page_title="Home",
+    page_icon="🏠",
+    initial_sidebar_state='collapsed' 
+)
+
 # Get countries and citites
 @st.cache_data
 def get_models():
@@ -28,7 +34,14 @@ def update_city():
 
 
 def submit():
-    print(st.session_state)
+    st.session_state['submited'] = True
+
+
+# Check if submited was pressed
+if 'submited' in st.session_state:
+    del st.session_state.submited
+    st.switch_page('pages/results.py')
+
 
 # Get list of available places
 models = get_models()
@@ -81,13 +94,13 @@ st.selectbox('Country', countries, key='country')
 
 # City selectbox
 if st.session_state['country'] != '':
-    st.markdown('### Now choose a **city**:')
+    st.markdown('### Choose a **city**:')
     st.selectbox('City', [''] + places[st.session_state['country']], on_change=update_city, key='city')
 
 # Input model parameters
 if st.session_state['city'] != '' and \
     st.session_state['country'] != '':
-    st.markdown('### Now fill the details about the property you want to evaluate bellow:')
+    st.markdown('### Fill the details of your property:')
 
     with st.form('form_inputs', clear_on_submit=True):
         for input, data in st.session_state['inputs'].items():
@@ -101,4 +114,4 @@ if st.session_state['city'] != '' and \
                 case 'float':
                     st.number_input(data['name'], step=.01, key=input, min_value=0.00)
         
-        st.form_submit_button('Evaluate My Property', on_click=submit, type='primary')
+        st.form_submit_button('Evaluate My Property', on_click=submit, type='primary',use_container_width=True)
