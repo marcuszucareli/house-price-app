@@ -1,0 +1,17 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+COPY ../../requirements/app/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ../../.streamlit .
+COPY ../../app ./app
+COPY ../../mlflow_client ./mlflow_client
+COPY ../../tests/mlflow_client ./tests/mlflow_client
+
+EXPOSE 8080
+
+# Comando para rodar a app
+# CMD ["streamlit", "run", "./app/main.py", "--server.port=8080", "--server.address=0.0.0.0"]
