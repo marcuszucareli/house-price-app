@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
+from pydantic import BaseModel
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Any
 from datetime import datetime
 
 # Define the maximum number of chars in strings
 max_chars = 64
 
-@dataclass
-class Inputs:
+
+class Inputs(BaseModel):
     """
     Defines the necessary parameters that each input of the model should have.
 
@@ -28,6 +29,9 @@ class Inputs:
         unit (Optional[str] = None): Unit of measurement associated with the 
         parameter.
     """
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
     column_name: str
     label: str
     type: str
@@ -36,7 +40,7 @@ class Inputs:
     unit: Optional[str] = None
 
 
-    def __post_init__(self):
+    def model_post_init(self, __context):
         allowed_data_types = ['bool', 'int', 'float', 'categorical']
         if len(self.column_name) > max_chars:
             raise ValueError("column_name cannot be longer than 64 characters")
@@ -65,14 +69,13 @@ class Inputs:
             raise ValueError("label cannot be longer than 128 characters")
 
 
-@dataclass
-class ModelLogInput:
+class ModelLogInput(BaseModel):
     """
     Validates model information to ensure compliance with the project's logging
      standards.
     
     Args:
-        model (any): A machine learning model compatible with the MLflow 
+        model (Any): A machine learning model compatible with the MLflow 
         library.
         mape (float | int): Mean Absolute Percentage Error of the model in 
         decimal form.
@@ -95,8 +98,13 @@ class ModelLogInput:
         a prediction. Do not include feature engineering parameters—this list 
         should contain only the inputs explicitly required from the user.
     """
+    # Set pydantic configs
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
+
     # Model
-    model: any
+    model: Any
 
     # Metrics
     mape: float | int
@@ -117,7 +125,7 @@ class ModelLogInput:
     inputs: list[Inputs]
 
 
-    def __post_init__(self):
+    def model_post_init(self, __context):
         # Validate model
         if self.model is None:
             raise TypeError("You need to provide a model.")
@@ -140,4 +148,3 @@ class ModelLogInput:
         for input in self.inputs:
             if input.column_name not in self.x_test.columns.to_list():
                 raise ValueError(f"{input.column_name} is not a x_test column")
-        
