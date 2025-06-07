@@ -17,6 +17,7 @@ import requests
 import json
 from mlflow.entities.model_registry import RegisteredModel
 
+
 class APIClientInterface:
     def get_models(self) -> list[RegisteredModel]:
         """
@@ -26,6 +27,7 @@ class APIClientInterface:
             NotImplementedError: This method must be overridden in subclasses.
         """
         raise NotImplementedError('get_models not implemented in this class.')
+
 
 class MlflowAPI(APIClientInterface):
     def get_models(self) -> list[RegisteredModel]:
@@ -40,6 +42,7 @@ class MlflowAPI(APIClientInterface):
         url = f'{API_BASE_URL}'
         res = [url]
         return res
+
 
 class MockAPI(APIClientInterface):
     def __init__(self):

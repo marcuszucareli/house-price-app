@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from pydantic import BaseModel
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import Optional, Any
 from datetime import datetime
 
@@ -77,6 +77,10 @@ class ModelLogInput(BaseModel):
     Args:
         model (Any): A machine learning model compatible with the MLflow 
         library.
+        model_link (str): The link to download the Mlflow registered model. 
+        The MLflow download link must be provided via a reputable file-sharing 
+        or cloud storage platform (e.g., Google Drive, Dropbox, or OneDrive) to
+         ensure reliable access and security.
         mape (float | int): Mean Absolute Percentage Error of the model in 
         decimal form.
         mae (float | int): Mean Absolute Error of the model.
@@ -84,8 +88,8 @@ class ModelLogInput(BaseModel):
         r2 (float | int): R-squared of the model
         x_test (pd.DataFrame): A sample of 100 rows from the model's test
          data, used for validation and logging.
-        y_predict (pd.Series | np.ndarray): The prediction associated with the
-         x_test data, used for validation and logging..
+        y_test (pd.Series | np.ndarray): The lable value associated with the
+         x_test data, used for validation and logging.
         author (str): The author of the model
         algorithm (str): The algorithm used to train the model (e.g., linear 
         regression, random forest, XGBoost, etc.).
@@ -97,6 +101,9 @@ class ModelLogInput(BaseModel):
         inputs (list[Inputs]): A list of user-provided inputs required to make 
         a prediction. Do not include feature engineering parameters—this list 
         should contain only the inputs explicitly required from the user.
+        links (dict[str]): A dict of usefull URL's for the model. Use it to
+        share notebooks, Github pages, Linkedin and other resources. Theses
+        links wiil be displayed in the bottom of the Streamlit application.
     """
     # Set pydantic configs
     model_config = {
@@ -105,6 +112,7 @@ class ModelLogInput(BaseModel):
 
     # Model
     model: Any
+    model_link: str
 
     # Metrics
     mape: float | int
@@ -114,7 +122,7 @@ class ModelLogInput(BaseModel):
 
     # Artefacts
     x_test: pd.DataFrame
-    y_predict: pd.Series | np.ndarray
+    y_test: pd.Series | np.ndarray
 
     # Tags
     author: str
@@ -123,6 +131,7 @@ class ModelLogInput(BaseModel):
     country: str
     cities: list[str]
     inputs: list[Inputs]
+    links: Optional[dict[str, str]]
 
 
     def model_post_init(self, __context):
@@ -136,8 +145,8 @@ class ModelLogInput(BaseModel):
         if len(self.x_test) != 100:
             raise ValueError("x_test must have 100 lines")
         # Validate y_test
-        if len(self.y_predict) != 100:
-            raise ValueError("y_predict must have 100 lines")
+        if len(self.y_test) != 100:
+            raise ValueError("y_test must have 100 lines")
         # Validate R²
         if self.r2 < -1 or self.r2 > 1:
             raise ValueError("R² value must be between -1 and 1.")

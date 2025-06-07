@@ -8,6 +8,7 @@ from mlflow_client.model_logging import Inputs, ModelLogInput, max_chars
 # Define base model input
 base_ModelLogInput = {
     'model': LinearRegression(),
+    'model_link': 'https://www.santosfc.com.br/',
     'mape': 1,
     'mae': 42,
     'rmse': 42,
@@ -18,7 +19,7 @@ base_ModelLogInput = {
             "column_2": [i for i in range(100)]
         }
     ),
-    'y_predict': np.array([i for i in range(100)]),
+    'y_test': np.array([i for i in range(100)]),
     'author': 'Edson Arantes do Nascimento',
     'algorithm': 'regression',
     'data_year': 2025,
@@ -35,7 +36,11 @@ base_ModelLogInput = {
                 'unit': None
             }
         )
-    ]
+    ],
+    'links': {
+        'Github': 'https://github.com/marcuszucareli',
+        'Linkedin': 'https://www.linkedin.com/feed/'
+    }
 }
 
 # Define the wrong input class
@@ -155,7 +160,7 @@ def test_ModelLogInput_success(input_data, expected):
         ({'mape': -2}, ValueError),   # Mape < -1
         ({'x_test': pd.DataFrame( \
             {"Column_1": [1]})}, ValueError),   # x_test size != 100
-        ({'y_predict': np.array([1])}, ValueError),   # y_predict size != 0
+        ({'y_test': np.array([1])}, ValueError),   # y_test size != 0
         ({'r2': -2}, ValueError),   # R² < -1
         ({'r2': 2}, ValueError),   # R² > 1
         ({'data_year': \
