@@ -5,18 +5,25 @@ from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from mlflow_client.model_logging import Inputs, ModelLogInput, max_chars
 
+
+# Define a test regression model
+X = pd.DataFrame(
+    data={
+        'column_1': [i for i in range(100)]
+    }
+)
+y = np.array([i for i in range(100)])
+test_model = LinearRegression()
+test_model.fit(X, y)
+
 # Define base model input
 base_ModelLogInput = {
-    'model': LinearRegression(),
+    'model': test_model,
     'model_link': 'https://www.santosfc.com.br/',
-    'mape': 1,
-    'mae': 42,
-    'rmse': 42,
-    'r2': -1,
+    'flavor': 'sklearn',
     'x_test': pd.DataFrame(
         {
-            "column_1": [i for i in range(100)],
-            "column_2": [i for i in range(100)]
+            "column_1": [i for i in range(100)]
         }
     ),
     'y_test': np.array([i for i in range(100)]),
@@ -29,10 +36,10 @@ base_ModelLogInput = {
         Inputs(
             **{
                 'column_name': "column_1",
-                'label': "Is your house new?",
-                'type': "bool",
+                'label': "Your input",
+                'type': "int",
                 'options': [],
-                'description': 'If you house has less than 5 years',
+                'description': 'Number you want to multiply by 2',
                 'unit': None
             }
         )
@@ -54,6 +61,7 @@ base_Inputs = {
 }
 wrong_input = base_Inputs.copy()
 wrong_input['column_name'] = 'Not in x_test'
+
 
 @pytest.mark.parametrize(
     "input_data, expected",
@@ -149,20 +157,16 @@ def test_Inputs_validation_error(input_data, expected):
 )
 def test_ModelLogInput_success(input_data, expected):
     model_log_input = ModelLogInput(**input_data)
-    assert isinstance(model_log_input, ModelLogInput)
+    assert isinstance(model_log_input, expected)
 
 
 @pytest.mark.parametrize(
     'input_data, expected',
     [
         ({'model': None}, TypeError),   # No model
-        ({'mape': 2}, ValueError),   # Mape > 1
-        ({'mape': -2}, ValueError),   # Mape < -1
         ({'x_test': pd.DataFrame( \
             {"Column_1": [1]})}, ValueError),   # x_test size != 100
         ({'y_test': np.array([1])}, ValueError),   # y_test size != 0
-        ({'r2': -2}, ValueError),   # R² < -1
-        ({'r2': 2}, ValueError),   # R² > 1
         ({'data_year': \
           datetime.now().year + 1}, ValueError),   # date_year > current year
         ({'inputs': [Inputs(**wrong_input)]}, ValueError)   # Wrong input
