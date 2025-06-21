@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 import pathlib
+import os
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from mlflow_client.model_logging import Inputs, ModelLogInput, max_chars
@@ -189,6 +190,8 @@ def test_ModelLogInput_error(input_data, expected):
 )
 def test_generate_zip_success(input_data):
     model_log_input = ModelLogInput(**input_data)
-    model_log_input.generate_zip()
+    model_log_input.generate_zip('test_model')
 
-    assert pathlib.Path('./model_development/upload_model.zip').is_file()
+    assert pathlib.Path('./model_development/test_model.zip').is_file()
+    os.remove('./model_development/test_model.zip')
+

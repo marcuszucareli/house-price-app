@@ -247,7 +247,7 @@ class ModelLogInput(BaseModel):
                 raise ValueError(f"{input.column_name} is not a x_test column")
     
     
-    def generate_zip(self):
+    def generate_zip(self, file_name):
         dev_path = './model_development' 
         dev_path_obj = pathlib.Path(dev_path)
         # Exclude previous runs
@@ -305,12 +305,11 @@ class ModelLogInput(BaseModel):
             try:
                 # Save the model as zip
                 shutil.make_archive(
-                    "./model_development/upload_model", "zip", root_dir=run_dir)
+                    f"./model_development/{file_name}", "zip", root_dir=run_dir)
                 print(f"""
-                    Your model is saved in the model_development folder.\n
-                    Save this zip file to the link you provided in the model_link 
-                    parameter and then make a pull request of your branch.
-                    """
+Your model is saved in the model_development folder.\n
+Save this zip file to the link you provided in the model_link 
+parameter and then make a pull request of your branch."""
                 )
             except Exception as e:
                 print('Error saving model:\n{e}')
