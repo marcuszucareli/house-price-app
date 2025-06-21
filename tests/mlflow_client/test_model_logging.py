@@ -1,10 +1,10 @@
 import pytest
 import pandas as pd
 import numpy as np
+import pathlib
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from mlflow_client.model_logging import Inputs, ModelLogInput, max_chars
-
 
 # Define a test regression model
 X = pd.DataFrame(
@@ -179,3 +179,16 @@ def test_ModelLogInput_error(input_data, expected):
 
     with pytest.raises(expected):
         ModelLogInput(**model_inputs)
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        (base_ModelLogInput)
+    ]
+)
+def test_generate_zip_success(input_data):
+    model_log_input = ModelLogInput(**input_data)
+    model_log_input.generate_zip()
+
+    assert pathlib.Path('./model_development/upload_model.zip').is_file()

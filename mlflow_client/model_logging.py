@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 import mlflow.pyfunc
 import tempfile
+import shutil
+import pathlib
+import json
+import pickle
 from pydantic import BaseModel
 from dataclasses import field
 from typing import Optional, Any
@@ -147,51 +151,53 @@ class ModelLogInput(BaseModel):
     links: Optional[dict[str, str]] = {}
 
 
-    def temp_save_model(self, tmp_dir):
-        registered_model_name = 'test_model'
+    def _save_model(self, save_dir, save_or_log='save'):
+        model_name = 'model'
         match self.flavor:
                 case "sklearn":
                     import mlflow.sklearn
-                    mlflow.set_tracking_uri(f"file:{tmp_dir}")
-                    mlflow.sklearn.save_model(
-                        sk_model=self.model,
-                        path=tmp_dir
-                    )
+                    if save_or_log == 'save':
+                        mlflow.sklearn.save_model(
+                            sk_model=self.model,
+                            path=save_dir
+                        )
+                    else:
+                        mlflow.sklearn.log_model(
+                            sk_model=self.model,
+                            artifact_path='model'
+                        )
+
 
                 case "xgboost":
                     import mlflow.xgboost
-                    mlflow.set_tracking_uri(f"file:{tmp_dir}")
                     mlflow.xgboost.save_model(
                         xgb_model=self.model,
-                        registered_model_name=registered_model_name,
-                        path=tmp_dir
+                        registered_model_name=model_name,
+                        path=save_dir
                     )
 
                 case "lightgbm":
                     import mlflow.lightgbm
-                    mlflow.set_tracking_uri(f"file:{tmp_dir}")
                     mlflow.lightgbm.save_model(
                         lgbm_model=self.model,
-                        registered_model_name=registered_model_name,
-                        path=tmp_dir
+                        registered_model_name=model_name,
+                        path=save_dir
                     )
 
                 case "catboost":
                     import mlflow.catboost
-                    mlflow.set_tracking_uri(f"file:{tmp_dir}")
                     mlflow.catboost.save_model(
                         model=self.model,
-                        registered_model_name=registered_model_name,
-                        path=tmp_dir
+                        registered_model_name=model_name,
+                        path=save_dir
                     )
 
                 case "keras" | "tensorflow":
                     import mlflow.keras
-                    mlflow.set_tracking_uri(f"file:{tmp_dir}")
                     mlflow.keras.save_model(
                         keras_model=self.model,
-                        registered_model_name=registered_model_name,
-                        path=tmp_dir
+                        registered_model_name=model_name,
+                        path=save_dir
                     )
 
                 case _:
@@ -207,11 +213,13 @@ class ModelLogInput(BaseModel):
             raise ValueError("y_test must have 100 lines")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
+            mlflow.set_tracking_uri(f"file://{tmp_dir}")
+            model_path = f'{tmp_dir}/model'
             # Save the model
-            self.temp_save_model(tmp_dir)
+            self._save_model(model_path)
             
             # Load model using pyfunc
-            model_loaded = mlflow.pyfunc.load_model(tmp_dir)
+            model_loaded = mlflow.pyfunc.load_model(model_path)
 
             # predict
             y_test_repository = model_loaded.predict(self.x_test)
@@ -237,3 +245,72 @@ class ModelLogInput(BaseModel):
         for input in self.inputs:
             if input.column_name not in self.x_test.columns.to_list():
                 raise ValueError(f"{input.column_name} is not a x_test column")
+    
+    
+    def generate_zip(self):
+        dev_path = './model_development' 
+        dev_path_obj = pathlib.Path(dev_path)
+        # Exclude previous runs
+        if dev_path_obj.exists():
+            for item in dev_path_obj.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
+        else:
+            dev_path_obj.mkdir(parents=True)
+        
+        # Configure mlflow
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            mlflow.set_tracking_uri(f"file://{tmp_dir}")
+            mlflow.set_experiment("0")
+            with mlflow.start_run() as run:
+                # log model
+                self._save_model(f'{tmp_dir}/model', save_or_log='log')
+
+                # log metrics
+                mlflow.log_metric("mae", self.mae)
+                mlflow.log_metric("mape", self.mape)
+                mlflow.log_metric("r2", self.r2)
+                mlflow.log_metric("rmse", self.rmse)
+
+                # log artefacts
+                test_data = {
+                    'x_test': self.x_test,
+                    'y_test': self.y_test
+                }
+
+                file_path = f"{tmp_dir}/test_data.pkl"
+                with open(file_path, "wb") as f:
+                    pickle.dump(test_data, f)
+
+                mlflow.log_artifact(file_path)
+            
+                # set tags
+                mlflow.set_tag('model_link', self.model_link)
+                mlflow.set_tag('flavor', self.flavor)
+                mlflow.set_tag('algorithm', self.algorithm)
+                mlflow.set_tag('data_year', self.data_year)
+                mlflow.set_tag('country', self.country)
+                mlflow.set_tag('cities', json.dumps(self.cities))
+                json_inputs = [obj.model_dump_json() for obj in self.inputs]
+                mlflow.set_tag('inputs', json.dumps(json_inputs))
+                mlflow.set_tag('author', self.author)
+                mlflow.set_tag('links', self.links)
+                mlflow.set_tag("run_id", run.info.run_id)
+
+                run_dir = pathlib.Path(
+                    run.info.artifact_uri.replace("file://", "")).parent
+
+            try:
+                # Save the model as zip
+                shutil.make_archive(
+                    "./model_development/upload_model", "zip", root_dir=run_dir)
+                print(f"""
+                    Your model is saved in the model_development folder.\n
+                    Save this zip file to the link you provided in the model_link 
+                    parameter and then make a pull request of your branch.
+                    """
+                )
+            except Exception as e:
+                print('Error saving model:\n{e}')
