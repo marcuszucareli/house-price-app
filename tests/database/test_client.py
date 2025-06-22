@@ -1,7 +1,7 @@
 import pytest
 import json
-from database.client import Database
-from database.create_db import model_columns
+from database.client import Database, \
+    model_columns, city_columns, inputs_columns
 from tempfile import TemporaryDirectory
 
 @pytest.fixture(scope="module")
@@ -62,3 +62,20 @@ def test_delete_data(get_test_db):
     database.delete_data(table_name, condition)
     database.c.execute(f"SELECT * FROM {table_name} WHERE id='ABC123'")
     assert database.c.fetchone() is None
+
+
+def test_initialize_schema(get_test_db):
+    database_path, database, table_name = get_test_db
+    database.initialize_schema()
+    database.c.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' " \
+        f"AND name='models'")
+    assert database.c.fetchone() is not None
+    database.c.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' " \
+        f"AND name='cities'")
+    assert database.c.fetchone() is not None
+    database.c.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' " \
+        f"AND name='inputs'")
+    assert database.c.fetchone() is not None

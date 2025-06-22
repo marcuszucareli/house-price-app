@@ -1,7 +1,7 @@
 """
 client.py
 
-This module defines the project database CRUD operations.
+This module defines the project database CRUD operations and initializes it.
 
 Author: Marcus Zucareli
 Date: 2025-06-21
@@ -9,6 +9,39 @@ Date: 2025-06-21
 import sqlite3
 import os
 import pandas as pd
+
+model_columns = {
+    'id': "TEXT PRIMARY KEY",
+    'flavor': "TEXT",
+    'r2': "REAL",
+    'mae': "REAL",
+    'mape': "REAL",
+    'rmse': "REAL",
+    'algorithm': "TEXT",
+    'data_year': "INTEGER",
+    'country': "TEXT",
+    'cities': "TEXT",
+    'author': "TEXT"
+}
+
+city_columns = {
+    'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+    'city': 'TEXT',
+    'models_id': 'TEXT',
+    'FOREIGN KEY (models_id)': 'REFERENCES models(id)'
+}
+
+inputs_columns = {
+        'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+        'models_id': 'TEXT',
+        'column_name': 'TEXT',
+        'label': 'TEXT',
+        'type': 'TEXT',
+        'options': 'TEXT',
+        'description': 'TEXT',
+        'unit': 'TEXT',
+        'FOREIGN KEY (models_id)': 'REFERENCES models(id)'
+    }
 
 
 class Database():
@@ -96,3 +129,11 @@ class Database():
         df = pd.read_sql_query(
             f"SELECT * FROM {table} WHERE {condition}", self.con)
         return df
+
+    def initialize_schema(self):
+
+        self.create_table('models', model_columns)
+        self.create_table('cities', city_columns)
+        self.create_table('inputs', inputs_columns)
+
+
