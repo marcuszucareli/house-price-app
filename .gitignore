@@ -175,3 +175,6 @@ cython_debug/
 
 # Development directory
 model_development/
+
+# Database
+database/file/
