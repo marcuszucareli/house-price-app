@@ -20,7 +20,6 @@ model_columns = {
     'algorithm': "TEXT",
     'data_year': "INTEGER",
     'country': "TEXT",
-    'cities': "TEXT",
     'author': "TEXT"
 }
 
@@ -28,20 +27,22 @@ city_columns = {
     'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
     'city': 'TEXT',
     'models_id': 'TEXT',
-    'FOREIGN KEY (models_id)': 'REFERENCES models(id)'
+    'country': 'TEXT',
+    'FOREIGN KEY (models_id)': 'REFERENCES models(id)',
+    'FOREIGN KEY (country)': 'REFERENCES models(country)'
 }
 
 inputs_columns = {
-        'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
-        'models_id': 'TEXT',
-        'column_name': 'TEXT',
-        'label': 'TEXT',
-        'type': 'TEXT',
-        'options': 'TEXT',
-        'description': 'TEXT',
-        'unit': 'TEXT',
-        'FOREIGN KEY (models_id)': 'REFERENCES models(id)'
-    }
+    'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+    'models_id': 'TEXT',
+    'column_name': 'TEXT',
+    'label': 'TEXT',
+    'type': 'TEXT',
+    'options': 'TEXT',
+    'description': 'TEXT',
+    'unit': 'TEXT',
+    'FOREIGN KEY (models_id)': 'REFERENCES models(id)'
+}
 
 
 class Database():
