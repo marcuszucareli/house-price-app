@@ -25,6 +25,7 @@ def init_db(
     
     DB_PATH = os.getenv('DB_PATH')
     table_exists, has_data = is_intiated()
+    is_dev = True if os.getenv('ENV') == 'dev' else False
     
     if not table_exists:
         with open(schema_path) as f:
@@ -34,7 +35,7 @@ def init_db(
             c = conn.cursor()
             c.executescript(schema)
 
-            if not has_data:
+            if not has_data and is_dev:
                 with open(data_path) as f:
                     data = f.read()
                 c.executescript(data)
