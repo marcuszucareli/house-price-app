@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS models (
     rmse REAL,
     algorithm TEXT,
     data_year INTEGER,
-    country TEXT,
-    author TEXT
+    author TEXT,
+    links TEXT
 );
 
 CREATE TABLE IF NOT EXISTS cities (

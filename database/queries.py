@@ -1,7 +1,7 @@
 queries = {
     'get_all_countries': """
 SELECT DISTINCT country
-FROM models
+FROM cities
 ORDER BY country
 """,
 

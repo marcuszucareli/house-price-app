@@ -8,8 +8,8 @@ INSERT INTO models VALUES (
     .2004,
     "Random forest",
     2011,
-    "Brazil",
-    "Giovanni Silva de Oliveira"
+    "Giovanni Silva de Oliveira",
+    '{"linkedin": "www.linkedin.com", "github": "www.github.com"}'
 );
 
 INSERT INTO models VALUES (
@@ -21,8 +21,8 @@ INSERT INTO models VALUES (
     .2004,
     "xgboosting",
     2025,
-    "Brazil",
-    "Edson Arantes do Nascimento"
+    "Edson Arantes do Nascimento",
+    '{"linkedin": "www.linkedin.com", "github": "www.github.com"}'
 );
 
 INSERT INTO models VALUES (
@@ -34,8 +34,8 @@ INSERT INTO models VALUES (
     .2025,
     "Regression",
     2015,
-    "France",
-    "Neymar Jr"
+    "Neymar Jr",
+    '{"linkedin": "www.linkedin.com", "github": "www.github.com"}'
 );
 
 -- cities table
