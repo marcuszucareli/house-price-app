@@ -4,7 +4,6 @@ from fastapi import FastAPI, HTTPException, Query
 from database.queries import queries
 from database.crud import *
 from api.schemas import *
-from fastapi.responses import HTMLResponse
 
 
 with open(file='./api/description.md') as f:
@@ -177,3 +176,29 @@ def get_models(
 
     return {"models": cities}
 
+
+@app.get(
+    '/inputs/',
+    tags=['Consulting'],
+    # response_model='alterar' 
+)
+def get_inputs(model_id: str = 
+    Query(
+        title='Model id',
+        description=(
+            "Get the required inputs to use the model" \
+        ),
+        openapi_examples={
+            "model id": {
+                "value": "A",
+                "description": "The id of the desired model."
+            }
+        }
+    )
+):
+    query = queries['get_inputs']
+    param = {'model_id': model_id}
+    df = execute_with_pandas(query, param)
+    inputs = df.to_dict(orient="records")
+
+    return {'inputs': inputs}

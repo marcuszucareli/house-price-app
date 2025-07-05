@@ -74,10 +74,11 @@ class ModelItem(BaseModel):
                         examples=[98_000.05])
     algorithm: str = Field(description='Type of algorithm used by the model ' \
     '(e.g. Random Forest, Regression)', examples=['Random Forest'])
-    country: str = Field(description='The country of the model.',
-                         examples=['Brazil'])
     author: str = Field(description='The name of the author of the model.',
                         examples=['Edson Arantes do Nascimento'])
+    links: str = Field(
+        description='Links provided by the author.',
+        examples=["{'linkedin': 'www.linkedin.com'}"])
 
 
 class GetModelsResponse(BaseModel):
@@ -97,7 +98,8 @@ class GetModelsResponse(BaseModel):
             "- **algorithm**: Type of algorithm used by the model (e.g. "
             "Random Forest, Regression)\n"
             "**country**: The country where the model is located\n"
-            "**author**: The name of the author of the model."
+            "**author**: The name of the author of the model.\n"
+            "**links**: Relevant links provided by the author.\n"
         )
     )
     
