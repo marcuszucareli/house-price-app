@@ -26,11 +26,12 @@ class Inputs(BaseModel):
         label (str): The name to be displayed in the Streamlit app.
         type (str): The type of the input. Must be one of the following
                     options:
-            - "bool":  A boolean parameter.
+            - "bool": A boolean parameter.
             - "int": An int parameter.
             - "float": An float parameter.
             - "categorical": A categorical parameter. If choosing "categorical"
                 you must specify the options attribute.
+            - "map": A lat, lng coordinate rendered as a map.
         options (list[str]): The options of the categorical parameter.
         description (Optional[str] = None, optional): A brief description of 
         the parameter.
@@ -49,7 +50,7 @@ class Inputs(BaseModel):
 
 
     def model_post_init(self, __context):
-        allowed_data_types = ['bool', 'int', 'float', 'categorical']
+        allowed_data_types = ['bool', 'int', 'float', 'categorical', 'map']
         if len(self.column_name) > max_chars:
             raise ValueError("column_name cannot be longer than 64 characters")
         
