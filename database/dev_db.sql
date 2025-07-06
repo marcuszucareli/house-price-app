@@ -132,3 +132,14 @@ INSERT INTO inputs VALUES (
     'The area in m²',
     'm²'
 );
+
+INSERT INTO inputs VALUES (
+    NULL,
+    'A',
+    'map',
+    'map',
+    'map',
+    '[]',
+    'Coordinates',
+    ''
+);

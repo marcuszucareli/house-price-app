@@ -30,7 +30,8 @@ def get_city_coord(city: str):
 
     return {
         "coords": coords,
-        "boundingbox": bbox
+        "boundingbox": bbox,
+        "zoom": 16
     }
 
 
@@ -144,27 +145,31 @@ if st.session_state['model'].country != None:
 if st.session_state['model'].inputs != None:
     has_coordinates = any(item["type"] == "map" \
                     for item in st.session_state['model'].inputs)
-    has_coordinates = True
 else:
     has_coordinates = False
 
 if has_coordinates:
 
+    # Create session state only if we use map
     if 'markers' not in st.session_state:
         st.session_state.markers = []
 
+    # Use boundary only when there's no selected marker (user input)
     use_bbox = False
     # Get city coords and boundaries
     if not st.session_state['markers']:
+        # get boundaries from api
         city_data = get_city_coord(st.session_state.model.city)
         use_bbox = True
     else:
+        # User marker and zoom option if user already selected the address
         city_data = st.session_state['markers'][0]
 
     coords = city_data['coords']
     bbox = city_data['boundingbox']
+    zoom = city_data['zoom']
 
-    m = folium.Map(location=coords, zoom_start=16)
+    m = folium.Map(location=coords, zoom_start=zoom)
 
     if use_bbox:
         m.fit_bounds(bbox)
@@ -177,7 +182,8 @@ if has_coordinates:
             ],
         ).add_to(m)
 
-    # call to render Folium map in Streamlit
+    # Render map
+    st.markdown("""### Select the location of your home on the map""")
     st_data = st_folium(m, width=725)
 
     # Update map on click
@@ -186,7 +192,7 @@ if has_coordinates:
         # Exlude previous marker
         st.session_state.markers.clear()
 
-        # Set coods and boundary
+        # Set coords and boundary
         lat = st_data["last_clicked"]["lat"]
         lng = st_data["last_clicked"]["lng"]
 
@@ -199,7 +205,8 @@ if has_coordinates:
         st.session_state.markers.append(
             {
                 'coords': [lat, lng],
-                'boundingbox': bbox
+                'boundingbox': bbox,
+                'zoom': st_data['zoom']
             }
         )
         st.rerun()

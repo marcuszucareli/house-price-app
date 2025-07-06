@@ -1,8 +1,11 @@
 import os
 from database.connection import get_connection
 
+DB_PATH = os.getenv('DB_PATH')
+
 
 def is_intiated() -> bool:
+
     with get_connection() as conn:
         c = conn.cursor()
 
@@ -22,10 +25,14 @@ def is_intiated() -> bool:
 
 def init_db(
         schema_path="database/schemas.sql", data_path="database/dev_db.sql"):
-    
     table_exists, has_data = is_intiated()
     is_dev = True if os.getenv('ENV') == 'dev' else False
     
+    # Exclude previous dev db
+    if is_dev:
+        if os.path.exists(DB_PATH):
+            os.remove(DB_PATH)
+
     if not table_exists:
         with open(schema_path) as f:
             schema = f.read()
@@ -38,4 +45,3 @@ def init_db(
                 with open(data_path) as f:
                     data = f.read()
                 c.executescript(data)
-
