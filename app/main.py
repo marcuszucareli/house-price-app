@@ -1,5 +1,42 @@
 import streamlit as st
+import folium
+from streamlit_folium import st_folium
 from app.client import Models
+import requests
+
+
+def get_city_coord(city: str):
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": city,
+        "format": "json",
+        "limit": 1
+    }
+    headers = {"User-Agent": "geo-app/1.0"}
+    
+    res = requests.get(url, params=params, headers=headers)
+    if res.status_code != 200 or not res.json():
+        coords = [0, 0]
+        bbox = [[-60, -170], [75, 180]]
+    else:
+        data = res.json()
+        city_data = data[0]
+        bbox_raw = city_data["boundingbox"]
+        coords = [float(city_data["lat"]), float(city_data["lon"])]
+        bbox = [
+            [float(bbox_raw[0]), float(bbox_raw[2])],  # [south, west]
+            [float(bbox_raw[1]), float(bbox_raw[3])]   # [north, east]
+        ]
+
+    return {
+        "coords": coords,
+        "boundingbox": bbox
+    }
+
+
+def clamp_lng(lng):
+    return max(-180, min(180, lng))
+
 
 st.set_page_config(
     page_title="Home",
@@ -32,6 +69,9 @@ def update_city():
     else:
         st.session_state['model'].reset(
             st.session_state['model']._index['city'])
+        
+    if 'markers' in st.session_state:
+        st.session_state.markers.clear()
 
 
 def submit():
@@ -99,6 +139,70 @@ if st.session_state['model'].country != None:
         [None] + st.session_state['model'].cities,
         on_change=update_city,
         key='city')
+
+# Input map
+if st.session_state['model'].inputs != None:
+    has_coordinates = any(item["type"] == "map" \
+                    for item in st.session_state['model'].inputs)
+    has_coordinates = True
+else:
+    has_coordinates = False
+
+if has_coordinates:
+
+    if 'markers' not in st.session_state:
+        st.session_state.markers = []
+
+    use_bbox = False
+    # Get city coords and boundaries
+    if not st.session_state['markers']:
+        city_data = get_city_coord(st.session_state.model.city)
+        use_bbox = True
+    else:
+        city_data = st.session_state['markers'][0]
+
+    coords = city_data['coords']
+    bbox = city_data['boundingbox']
+
+    m = folium.Map(location=coords, zoom_start=16)
+
+    if use_bbox:
+        m.fit_bounds(bbox)
+
+    for marker in st.session_state.markers:
+        folium.Marker(
+            [
+                marker['coords'][0],
+                marker['coords'][1],
+            ],
+        ).add_to(m)
+
+    # call to render Folium map in Streamlit
+    st_data = st_folium(m, width=725)
+
+    # Update map on click
+    if st_data and st_data.get("last_clicked"):
+        
+        # Exlude previous marker
+        st.session_state.markers.clear()
+
+        # Set coods and boundary
+        lat = st_data["last_clicked"]["lat"]
+        lng = st_data["last_clicked"]["lng"]
+
+        sw = st_data['bounds']["_southWest"]
+        ne = st_data['bounds']["_northEast"]
+        bbox = [
+            [sw["lat"], clamp_lng(sw["lng"])],
+            [ne["lat"], clamp_lng(ne["lng"])],
+        ]
+        st.session_state.markers.append(
+            {
+                'coords': [lat, lng],
+                'boundingbox': bbox
+            }
+        )
+        st.rerun()
 
 # Input model parameters
 if st.session_state['model'].inputs != None:
