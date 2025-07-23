@@ -5,7 +5,7 @@ import tempfile
 import shutil
 import pathlib
 import json
-import pickle
+import uuid
 from pydantic import BaseModel
 from dataclasses import field
 from typing import Optional, Any
@@ -152,20 +152,14 @@ class ModelLogInput(BaseModel):
     links: Optional[dict[str, str]] = {}
 
 
-    def _save_model(self, save_dir, save_or_log='save'):
+    def _save_model(self, save_dir):
         model_name = 'model'
         match self.flavor:
                 case "sklearn":
                     import mlflow.sklearn
-                    if save_or_log == 'save':
-                        mlflow.sklearn.save_model(
+                    mlflow.sklearn.save_model(
                             sk_model=self.model,
                             path=save_dir
-                        )
-                    else:
-                        mlflow.sklearn.log_model(
-                            sk_model=self.model,
-                            artifact_path='model'
                         )
 
 
@@ -249,6 +243,14 @@ class ModelLogInput(BaseModel):
     
     
     def generate_zip(self, file_name):
+        """
+        Generate a zip file for a model including a json with the metrics and 
+        the model itself. It will be stored in the model_development folder. 
+        Upload the file to the link provided in class' attribute "model_link".
+        
+        Args:
+            file_name (str): The name of the zip file.
+        """
         dev_path = './model_development' 
         dev_path_obj = pathlib.Path(dev_path)
         # Exclude previous runs
@@ -261,56 +263,52 @@ class ModelLogInput(BaseModel):
         else:
             dev_path_obj.mkdir(parents=True)
         
-        # Configure mlflow
+        # Configure tempdir
         with tempfile.TemporaryDirectory() as tmp_dir:
-            mlflow.set_tracking_uri(f"file://{tmp_dir}")
-            mlflow.set_experiment("0")
-            with mlflow.start_run() as run:
-                # log model
-                self._save_model(f'{tmp_dir}/model', save_or_log='log')
+            self._save_model(f'{tmp_dir}/model')
 
-                # log metrics
-                mlflow.log_metric("mae", self.mae)
-                mlflow.log_metric("mape", self.mape)
-                mlflow.log_metric("r2", self.r2)
-                mlflow.log_metric("rmse", self.rmse)
+            json_inputs = [obj.model_dump_json() for obj in self.inputs]
 
-                # log artefacts
-                test_data = {
-                    'x_test': self.x_test,
-                    'y_test': self.y_test
-                }
+            # save metrics and artefacts
+            model_metadata = {
+                'metrics': {
+                    "mae": self.mae,
+                    "mape": self.mape,
+                    "r2": self.r2,
+                    "rmse": self.rmse
+                },
+                'artefacts': {
+                'x_test': self.x_test.to_json(),
+                'y_test': self.y_test.tolist()
+                },
+                'tags': {
+                    'model_link': self.model_link,
+                    'flavor': self.flavor,
+                    'algorithm': self.algorithm,
+                    'data_year': self.data_year,
+                    'country': self.country,
+                    'cities': json.dumps(self.cities),
+                    'inputs': json.dumps(json_inputs),
+                    'author': self.author,
+                    'links': self.links
+                },
+                'id': uuid.uuid4()
+            }
 
-                file_path = f"{tmp_dir}/test_data.pkl"
-                with open(file_path, "wb") as f:
-                    pickle.dump(test_data, f)
-
-                mlflow.log_artifact(file_path)
-            
-                # set tags
-                mlflow.set_tag('model_link', self.model_link)
-                mlflow.set_tag('flavor', self.flavor)
-                mlflow.set_tag('algorithm', self.algorithm)
-                mlflow.set_tag('data_year', self.data_year)
-                mlflow.set_tag('country', self.country)
-                mlflow.set_tag('cities', json.dumps(self.cities))
-                json_inputs = [obj.model_dump_json() for obj in self.inputs]
-                mlflow.set_tag('inputs', json.dumps(json_inputs))
-                mlflow.set_tag('author', self.author)
-                mlflow.set_tag('links', self.links)
-                mlflow.set_tag("run_id", run.info.run_id)
-
-                run_dir = pathlib.Path(
-                    run.info.artifact_uri.replace("file://", "")).parent
+            file_path = f"{tmp_dir}/model_metadata.json"
+            with open(file_path, "w") as f:
+                json.dump(model_metadata, f, indent=4)
 
             try:
                 # Save the model as zip
                 shutil.make_archive(
-                    f"./model_development/{file_name}", "zip", root_dir=run_dir)
+                    f"./model_development/{file_name}", 
+                    "zip",
+                    root_dir=tmp_dir)
                 print(f"""
 Your model is saved in the model_development folder.\n
 Save this zip file to the link you provided in the model_link 
 parameter and then make a pull request of your branch."""
                 )
             except Exception as e:
-                print('Error saving model:\n{e}')
+                print(f'Error saving model:\n{e}')
