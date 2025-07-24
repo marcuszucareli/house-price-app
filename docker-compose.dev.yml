@@ -1,0 +1,55 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    env_file:
+      - ./api/.env
+    volumes:
+      - ./api:/service/api
+      - ./database:/service/database
+      - ./tests/api:/service/tests/api
+      - ./tests/database:/service/tests/database
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    command: sh -c "python -m database.init_db && uvicorn api.api:app --host 0.0.0.0 --port 8000"
+
+  app:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+      args:
+          APP_ENV: dev
+    depends_on:
+      - api
+    env_file:
+      - ./app/.env
+    volumes:
+      - ./app:/service/app
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    command: streamlit run ./app/main.py --server.port=8080 --server.address=0.0.0.0
+
+  mlflow_client:
+    build:
+      context: .
+      dockerfile: ./mlflow_client/Dockerfile
+    env_file:
+      - ./mlflow_client/.env
+    volumes:
+      - ./mlflow_client:/service/mlflow_client
+      - ./database:/service/database
+      - ./tests/mlflow_client:/service/tests/mlflow_client
+      - ./tests/database:/service/tests/database
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    command: sleep infinity
+
+networks:
+  app-network:

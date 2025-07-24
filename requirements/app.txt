@@ -1,8 +1,5 @@
 requests==2.32.3
 streamlit==1.45.1
-mlflow==2.22.0
 pytest==8.3.5
 pydantic==2.11.5
-# dev
-fastapi[standard]==0.115.13
 streamlit-folium==0.25.0

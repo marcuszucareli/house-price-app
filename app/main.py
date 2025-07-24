@@ -78,7 +78,7 @@ def update_city():
 def submit():
     for key, item in st.session_state.items():
         print(key, item)
-    # st.session_state['submited'] = True
+    st.session_state['submited'] = True
 
 
 # Check if submited was pressed
@@ -89,7 +89,7 @@ if 'submited' in st.session_state:
 # Get models instance
 model = get_models()
 
-if model != None:
+if model.health_check:
     #  Initializa model
     if "model" not in st.session_state:
         st.session_state.model = model
@@ -113,7 +113,7 @@ else:
     st.html(
         '<a href="https://www.flaticon.com/free-icons/close" title="close icons">Close icons created by Fathema Khanom - Flaticon</a>'
     )
-    
+    get_models.clear()
     st.stop()
 
 # Welcome message

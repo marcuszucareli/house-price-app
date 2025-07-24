@@ -7,16 +7,20 @@ API_BASE_URL = os.getenv('API_BASE_URL')
 class Models:
 
     def call_api(self, endpoint, params=None):
-        url = f'{API_BASE_URL}/{endpoint}'
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            return data[endpoint]
-        else:
+        try:
+            url = f'{API_BASE_URL}/{endpoint}'
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                return data[endpoint]
+            else:
+                return None
+        except:
             return None
-
+        
     def __init__(self):
         self.countries = self.call_api('countries')
+        self.health_check = True if self.countries != None else False
         self.country = None
         self.cities = None
         self.city = None

@@ -32,6 +32,8 @@ def init_db(
     if is_dev:
         if os.path.exists(DB_PATH):
             os.remove(DB_PATH)
+            table_exists= False
+            has_data= False
 
     if not table_exists:
         with open(schema_path) as f:
@@ -45,3 +47,6 @@ def init_db(
                 with open(data_path) as f:
                     data = f.read()
                 c.executescript(data)
+
+
+init_db()
