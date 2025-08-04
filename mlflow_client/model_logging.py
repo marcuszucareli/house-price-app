@@ -8,10 +8,12 @@ import json
 import uuid
 from pydantic import BaseModel
 from dataclasses import field
-from typing import Optional, Any
+from typing import Optional, Any, Union
 from datetime import datetime
 from sklearn.metrics import  r2_score, root_mean_squared_error, \
     mean_absolute_percentage_error, mean_absolute_error
+from mlflow_client.config import MODEL_FOLDER_NAME, MODEL_JSON_NAME, \
+    DEV_FOLDER_PATH
 
 # Define the maximum number of chars in strings
 max_chars = 64
@@ -22,7 +24,11 @@ class Inputs(BaseModel):
     Defines the necessary parameters that each input of the model should have.
 
     Args:
-        column_name (str): The column name in the model.
+        column_name (str): The column name in the model. 
+        lat (str): column name for the latitude parameter in the model when 
+        using type `map`.
+        lng (str): column name for the longitude parameter in the model when 
+        using type `map`.
         label (str): The name to be displayed in the Streamlit app.
         type (str): The type of the input. Must be one of the following
                     options:
@@ -31,7 +37,7 @@ class Inputs(BaseModel):
             - "float": An float parameter.
             - "categorical": A categorical parameter. If choosing "categorical"
                 you must specify the options attribute.
-            - "map": A lat, lng coordinate rendered as a map.
+            - "map": A lat and lng coordinate rendered as a map.
         options (list[str]): The options of the categorical parameter.
         description (Optional[str] = None, optional): A brief description of 
         the parameter.
@@ -42,6 +48,8 @@ class Inputs(BaseModel):
         "arbitrary_types_allowed": True
     }
     column_name: str
+    lat: str = None
+    lng: str = None
     label: str
     type: str
     options: Optional[list[str]] = field(default_factory=list)
@@ -68,9 +76,13 @@ class Inputs(BaseModel):
                     "Categorical variables require the available " \
                     "options to be defined.")
         
+        if self.type == 'map':
+            if self.lat is None or self.lng is None:
+                raise ValueError("You must set lat and lng parameters when " \
+                "creating a map input.")
+
         if isinstance(self.description, str) and \
             len(self.description) > 200:
-            
             raise ValueError("label cannot be longer than 128 characters")
         
         if isinstance(self.unit, str) and \
@@ -149,11 +161,10 @@ class ModelLogInput(BaseModel):
     cities: list[str]
     inputs: list[Inputs]
     author: Optional[str] = None
-    links: Optional[dict[str, str]] = {}
+    links: Optional[dict[str, str]] = [{}]
 
 
     def _save_model(self, save_dir):
-        model_name = 'model'
         match self.flavor:
                 case "sklearn":
                     import mlflow.sklearn
@@ -162,12 +173,10 @@ class ModelLogInput(BaseModel):
                             path=save_dir
                         )
 
-
                 case "xgboost":
                     import mlflow.xgboost
                     mlflow.xgboost.save_model(
                         xgb_model=self.model,
-                        registered_model_name=model_name,
                         path=save_dir
                     )
 
@@ -175,7 +184,6 @@ class ModelLogInput(BaseModel):
                     import mlflow.lightgbm
                     mlflow.lightgbm.save_model(
                         lgbm_model=self.model,
-                        registered_model_name=model_name,
                         path=save_dir
                     )
 
@@ -183,7 +191,6 @@ class ModelLogInput(BaseModel):
                     import mlflow.catboost
                     mlflow.catboost.save_model(
                         model=self.model,
-                        registered_model_name=model_name,
                         path=save_dir
                     )
 
@@ -191,7 +198,6 @@ class ModelLogInput(BaseModel):
                     import mlflow.keras
                     mlflow.keras.save_model(
                         keras_model=self.model,
-                        registered_model_name=model_name,
                         path=save_dir
                     )
 
@@ -209,7 +215,7 @@ class ModelLogInput(BaseModel):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             mlflow.set_tracking_uri(f"file://{tmp_dir}")
-            model_path = f'{tmp_dir}/model'
+            model_path = f'{tmp_dir}/{MODEL_FOLDER_NAME}'
             # Save the model
             self._save_model(model_path)
             
@@ -240,75 +246,56 @@ class ModelLogInput(BaseModel):
         for input in self.inputs:
             if input.column_name not in self.x_test.columns.to_list():
                 raise ValueError(f"{input.column_name} is not a x_test column")
-    
-    
-    def generate_zip(self, file_name):
+
+
+    def _prepare_json(self, zip_id):
+        json_model = self.model_dump(exclude={"model", "x_test", "y_test"})
+        # Convert non-serializable attributes
+        json_model['x_test'] = self.x_test.to_dict(orient='records')
+        json_model['y_test'] = self.y_test.tolist()
+        json_model['id'] = zip_id
+        
+        return json_model
+
+
+    def generate_zip(self):
         """
         Generate a zip file for a model including a json with the metrics and 
         the model itself. It will be stored in the model_development folder. 
         Upload the file to the link provided in class' attribute "model_link".
-        
-        Args:
-            file_name (str): The name of the zip file.
+
+        Returns:
+            folder_path (str): path of the ziped folder.
         """
-        dev_path = './model_development' 
-        dev_path_obj = pathlib.Path(dev_path)
-        # Exclude previous runs
-        if dev_path_obj.exists():
-            for item in dev_path_obj.iterdir():
-                if item.is_dir():
-                    shutil.rmtree(item)
-                else:
-                    item.unlink()
-        else:
-            dev_path_obj.mkdir(parents=True)
-        
+
+        zip_id = str(uuid.uuid4())
+        json_model = self._prepare_json(zip_id)
+
         # Configure tempdir
         with tempfile.TemporaryDirectory() as tmp_dir:
-            self._save_model(f'{tmp_dir}/model')
+            self._save_model(f'{tmp_dir}/{MODEL_FOLDER_NAME}')
 
-            json_inputs = [obj.model_dump_json() for obj in self.inputs]
+            file_path = f"{tmp_dir}/{MODEL_JSON_NAME}"
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(json_model, f, ensure_ascii=False, indent=4)
 
-            # save metrics and artefacts
-            model_metadata = {
-                'metrics': {
-                    "mae": self.mae,
-                    "mape": self.mape,
-                    "r2": self.r2,
-                    "rmse": self.rmse
-                },
-                'artefacts': {
-                'x_test': self.x_test.to_json(),
-                'y_test': self.y_test.tolist()
-                },
-                'tags': {
-                    'model_link': self.model_link,
-                    'flavor': self.flavor,
-                    'algorithm': self.algorithm,
-                    'data_year': self.data_year,
-                    'country': self.country,
-                    'cities': json.dumps(self.cities),
-                    'inputs': json.dumps(json_inputs),
-                    'author': self.author,
-                    'links': self.links
-                },
-                'id': uuid.uuid4()
-            }
-
-            file_path = f"{tmp_dir}/model_metadata.json"
-            with open(file_path, "w") as f:
-                json.dump(model_metadata, f, indent=4)
+            folder_path = f"{DEV_FOLDER_PATH}/{zip_id}"
 
             try:
                 # Save the model as zip
                 shutil.make_archive(
-                    f"./model_development/{file_name}", 
+                    folder_path, 
                     "zip",
                     root_dir=tmp_dir)
                 print(f"""
-Your model is saved in the model_development folder.\n
-Save this zip file to the link you provided in the model_link 
-parameter and then make a pull request of your branch."""
+Your model has been saved in the {DEV_FOLDER_PATH} folder as {zip_id}.zip.
+To complete your contribution, please follow these steps:
+
+- Upload the zip file to the location you specified in the `model_link` parameter.
+- Create a copy of the model contribution template available at `./docs/templates/model_contribution.yml` and fill it out.
+- Open an issue in the project repository and include the completed template.
+"""
                 )
+                return folder_path
             except Exception as e:
-                print(f'Error saving model:\n{e}')
+                raise ValueError(f'Error saving the model:\n{e}')

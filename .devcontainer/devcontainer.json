@@ -41,7 +41,7 @@
 {
   "name": "housing-estimate-ai",
   "dockerComposeFile": "../docker-compose.dev.yml",
-  "service": "api",
+  "service": "mlflow_client",
   "workspaceFolder": "/service",
   "customizations": {
     "vscode": {

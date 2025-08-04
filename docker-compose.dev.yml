@@ -45,6 +45,7 @@ services:
       - ./database:/service/database
       - ./tests/mlflow_client:/service/tests/mlflow_client
       - ./tests/database:/service/tests/database
+      - ./model_development:/service/model_development
     ports:
       - "5000:5000"
     networks:
