@@ -19,6 +19,8 @@ input_cases = [
     # Type bool
     {
         'column_name': "is_new",
+        'lat': "lat",
+        'lng': "lng",
         'label': "Is your house new?",
         'type': "bool",
         'options': [],
@@ -28,6 +30,8 @@ input_cases = [
     # Type int
     {
         'column_name': "n_bedrooms",
+        'lat': "lat",
+        'lng': "lng",
         'label': "Number of bedrooms in the house",
         'type': "int",
         'options': [],
@@ -37,6 +41,8 @@ input_cases = [
     # Type float
     {
         'column_name': "m2",
+        'lat': "lat",
+        'lng': "lng",
         'label': "area_m2",
         'type': "float",
         'options': [],
@@ -46,6 +52,8 @@ input_cases = [
     # Type categorical
     {
         'column_name': "neighbourhood",
+        'lat': "lat",
+        'lng': "lng",
         'label': "Neighbourhood",
         'type': "categorical",
         'options': ['Morumbi', 'América'],

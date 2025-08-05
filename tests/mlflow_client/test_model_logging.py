@@ -31,10 +31,10 @@ def test_Inputs_validation_success(input_data):
         ({'description': "a"*250}, ValueError),
         # Unit string size
         ({'unit': "a"*(max_chars+1)}, ValueError),
-        # Map type and column_name is string
-        ({'type':"map", 'column_name':'string'}, ValueError),
-        # Map type and column_name list has size != 2
-        ({'type':"map", 'column_name':['string']}, ValueError)
+        # Map type and lat is None
+        ({'type':"map", 'lat': None}, ValueError),
+        # Map type and lng is None
+        ({'type':"map", 'lng': None}, ValueError)
     ]
 )
 def test_Inputs_validation_error(input_data, expected):

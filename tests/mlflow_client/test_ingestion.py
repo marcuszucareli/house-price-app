@@ -86,6 +86,8 @@ def test_prepare_sql_values_success(ingestion_flow_env):
                 None,
                 std_json['id'],
                 input_['column_name'],
+                input_['lat'],
+                input_['lng'],
                 input_['label'],
                 input_['type'],
                 json.dumps(input_['options'], ensure_ascii=False),
@@ -134,9 +136,12 @@ def test_sql_ingestion_success(ingestion_flow_env):
                   (standard_uuid,))
         query_inputs = c.fetchall()
 
+    # Check database registers
     assert len(query_models) == 1
     assert len(query_cities) == len(std_json['cities'])
     assert len(query_inputs) == len(std_json['inputs'])
+
+    # Check storage file
     assert os.path.exists(f'{storage_path}/{standard_uuid}')
     
     assert os.path.exists(f'{ingestion_flow_env[1]}/{standard_uuid}/' \

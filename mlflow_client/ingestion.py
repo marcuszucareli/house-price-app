@@ -70,6 +70,8 @@ def prepare_sql_values(model_metadata):
             None,   # Autoincrement ID
             model_metadata['id'],
             model_input['column_name'],
+            model_input['lat'],
+            model_input['lng'],
             model_input['label'],
             model_input['type'],
             json.dumps(model_input['options'], ensure_ascii=False),
@@ -123,7 +125,8 @@ def make_ingestion():
                 # Insert inputs
                 for model_input in inputs_table_values:
                     c.execute(
-                        "INSERT INTO inputs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO inputs VALUES" \
+                        "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         model_input
                     )
                 

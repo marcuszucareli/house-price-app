@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS inputs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     models_id TEXT,
     column_name TEXT,
+    lat TEXT,
+    lng TEXT,
     label TEXT,
     type TEXT,
     options TEXT,
