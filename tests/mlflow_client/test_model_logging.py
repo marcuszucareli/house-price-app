@@ -2,15 +2,14 @@ import pytest
 import pandas as pd
 import numpy as np
 import pathlib
-import uuid
 from datetime import datetime
 from mlflow_client.model_logging import Inputs, ModelLogInput, max_chars
-from tests.mlflow_client.conftest import input_cases, base_ModelLogInput
+from tests.mlflow_client.conftest import std_input_cases, base_ModelLogInput
 
 
 
 
-@pytest.mark.parametrize("input_data", input_cases)
+@pytest.mark.parametrize("input_data", std_input_cases)
 def test_Inputs_validation_success(input_data):
     model_input = Inputs(**input_data)
     assert isinstance(model_input, Inputs)
@@ -38,7 +37,7 @@ def test_Inputs_validation_success(input_data):
     ]
 )
 def test_Inputs_validation_error(input_data, expected):
-    model_inputs = input_cases[0].copy()
+    model_inputs = std_input_cases[0].copy()
     for item, value in input_data.items():
         model_inputs[item] = value
 
@@ -64,7 +63,7 @@ def test_ModelLogInput_success():
         # date_year > current year
         ({'data_year': datetime.now().year + 1}, ValueError),
         # Input column name is not a X column
-        ({'inputs': [Inputs(**{**input_cases[0], 'column_name': 'not in X'})]}, ValueError)
+        ({'inputs': [Inputs(**{**std_input_cases[0], 'column_name': 'not in X'})]}, ValueError)
     ]
 )
 def test_ModelLogInput_error(input_data, expected):

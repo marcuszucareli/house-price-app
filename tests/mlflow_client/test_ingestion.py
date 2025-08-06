@@ -42,14 +42,16 @@ def test_should_ingest_fail_many_files(ingestion_flow_env):
 
 
 def test_should_ingest_fail_in_db(ingestion_flow_env):
+    ingestion_path = ingestion_flow_env[0]
+    standard_uuid = str(ingestion_flow_env[5])
+
     with pytest.raises(ValueError,
-                       match='Model A already registered.'):
+                       match=f'Model {standard_uuid} already registered.'):
         
         from mlflow_client.ingestion import should_ingest
 
-        ingestion_path = ingestion_flow_env[0]
 
-        registered_model_path = str(ingestion_path / 'A')
+        registered_model_path = str(ingestion_path / standard_uuid)
 
         os.makedirs(registered_model_path)
         
@@ -111,14 +113,18 @@ def test_sql_ingestion_success(ingestion_flow_env):
     standard_uuid = str(ingestion_flow_env[5])
     std_json = ingestion_flow_env[4]
     
-    zip_source_path = f'tests/mlflow_client/data/{standard_uuid}.zip'
+    zip_source_path = f'tests/data/{standard_uuid}.zip'
     zip_destination_path = f'{ingestion_path}/{standard_uuid}.zip'
     shutil.copy(zip_source_path, zip_destination_path)
 
-    from database.init_db import init_db
     from mlflow_client.ingestion import make_ingestion
+    from database.connection import get_connection
 
-    init_db()
+    with get_connection() as conn:
+        c = conn.cursor()
+        c.execute('DELETE FROM models WHERE id = ?', (standard_uuid,))
+        c.execute('DELETE FROM cities WHERE models_id = ?', (standard_uuid,))
+        c.execute('DELETE FROM inputs WHERE models_id = ?', (standard_uuid,))
 
     make_ingestion()
 
@@ -144,8 +150,8 @@ def test_sql_ingestion_success(ingestion_flow_env):
     # Check storage file
     assert os.path.exists(f'{storage_path}/{standard_uuid}')
     
-    assert os.path.exists(f'{ingestion_flow_env[1]}/{standard_uuid}/' \
+    assert os.path.exists(f'{storage_path}/{standard_uuid}/' \
                           f'{MODEL_FOLDER_NAME}')
     
-    assert os.path.exists(f'{ingestion_flow_env[1]}/{standard_uuid}/' \
+    assert os.path.exists(f'{storage_path}/{standard_uuid}/' \
                           f'{MODEL_JSON_NAME}')

@@ -3,12 +3,11 @@ import numpy as np
 import mlflow.pyfunc
 import tempfile
 import shutil
-import pathlib
 import json
 import uuid
 from pydantic import BaseModel
 from dataclasses import field
-from typing import Optional, Any, Union
+from typing import Optional, Any
 from datetime import datetime
 from sklearn.metrics import  r2_score, root_mean_squared_error, \
     mean_absolute_percentage_error, mean_absolute_error

@@ -4,14 +4,12 @@ services:
       context: .
       dockerfile: ./api/Dockerfile
     env_file:
-      - ./api/.env.dev
+      - ./api/.env
     volumes:
       - ./api:/service/api
       - ./database:/service/database
       - ./tests/api:/service/tests/api
       - ./tests/database:/service/tests/database
-      - ./tests/data:/service/tests/data
-      - ./tests/conftest.py:/service/tests/conftest.py
     ports:
       - "8000:8000"
     networks:
@@ -27,7 +25,7 @@ services:
     depends_on:
       - api
     env_file:
-      - ./app/.env.dev
+      - ./app/.env
     volumes:
       - ./app:/service/app
     ports:
@@ -41,15 +39,13 @@ services:
       context: .
       dockerfile: ./mlflow_client/Dockerfile
     env_file:
-      - ./mlflow_client/.env.dev
+      - ./mlflow_client/.env
     volumes:
       - ./mlflow_client:/service/mlflow_client
       - ./database:/service/database
       - ./tests/mlflow_client:/service/tests/mlflow_client
       - ./tests/database:/service/tests/database
       - ./model_development:/service/model_development
-      - ./tests/data:/service/tests/data
-      - ./tests/conftest.py:/service/tests/conftest.py
     ports:
       - "5000:5000"
     networks:

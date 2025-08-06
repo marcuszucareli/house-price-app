@@ -24,7 +24,8 @@ def is_intiated() -> bool:
 
 
 def init_db(
-        schema_path="database/schemas.sql", data_path="database/dev_db.sql"):
+        schema_path="database/schemas.sql",
+        data_path="database/dev_db.sql"):
     table_exists, has_data = is_intiated()
     is_dev = True if os.getenv('ENV') == 'dev' else False
     
