@@ -22,8 +22,8 @@ models_table_columns = [
 cities_table_columns = [
     'id',
     'city',
-    'models_id',
-    'country'
+    'country',
+    'hierarchy'
 ]
 
 inputs_table_columns = [
@@ -44,8 +44,8 @@ std_input_cases = [
     # Type categorical
     {
         'column_name': "neighbourhood",
-        'lat': "lat",
-        'lng': "lng",
+        'lat': "",
+        'lng': "",
         'label': "Neighbourhood",
         'type': "categorical",
         'options': ['Morumbi', 'América'],
@@ -55,8 +55,8 @@ std_input_cases = [
     # Type bool
     {
         'column_name': "is_new",
-        'lat': "lat",
-        'lng': "lng",
+        'lat': "",
+        'lng': "",
         'label': "Is your house new?",
         'type': "bool",
         'options': [],
@@ -66,8 +66,8 @@ std_input_cases = [
     # Type int
     {
         'column_name': "n_bedrooms",
-        'lat': "lat",
-        'lng': "lng",
+        'lat': "",
+        'lng': "",
         'label': "Number of bedrooms in the house",
         'type': "int",
         'options': [],
@@ -77,8 +77,8 @@ std_input_cases = [
     # Type float
     {
         'column_name': "area_m2",
-        'lat': "lat",
-        'lng': "lng",
+        'lat': "",
+        'lng': "",
         'label': "Area",
         'type': "float",
         'options': [],
@@ -106,8 +106,20 @@ std_model_cases = [
         'author': 'Edson Arantes do Nascimento',
         'algorithm': 'regression',
         'data_year': 1999,
-        'country': 'Brazil',
-        'cities': ["Belo Horizonte", "Três Corações"],
+        'cities': [
+            {   
+                'wikidata_id': 'Q42800',
+                'name':"Belo Horizonte",
+                'country': 'Brazil',
+                'hierarchy': 'Minas Gerais'
+            },
+            {   
+                'wikidata_id': 'Q1439211',
+                'name':"Três Corações",
+                'country': 'Brazil',
+                'hierarchy': 'Minas Gerais'
+            }
+        ],
         'inputs': std_input_cases,
         'links': {
             "Github": "https://github.com/",
@@ -121,8 +133,14 @@ std_model_cases = [
         'author': 'Douglas Adams',
         'algorithm': 'gradient boosting',
         'data_year': 1998,
-        'country': 'England',
-        'cities': ["Cambridge"],
+        'cities': [
+            {   
+                'wikidata_id': 'Q350',
+                'name':"Cambridge",
+                'country': 'United Kingdom',
+                'hierarchy': 'Cambridge'
+            }
+        ],
         'inputs': std_input_cases[1:],
         'links': {
             "Github": "https://github.com/",
@@ -135,15 +153,26 @@ std_model_cases = [
         'author': 'Aurora Aksnes',
         'algorithm': 'random forest',
         'data_year': 1997,
-        'country': 'Norway',
-        'cities': ["Oslo", "Bergen"],
+        'cities': [
+            {   
+                'wikidata_id': 'Q585',
+                'name':"Oslo",
+                'country': 'Norway',
+                'hierarchy': 'Oslo Municipality'
+            },
+            {   
+                'wikidata_id': 'Q26793',
+                'name':"Bergen",
+                'country': 'Norway',
+                'hierarchy': 'Bergen Municipality'
+            }
+        ],
         'inputs': std_input_cases[1:-1],
         'links': {
             "Linkedin": "https://www.linkedin.com/"
         }
     },
 ]
-
 
 # Write/update dev_db 
 def write_sql_file():
@@ -174,14 +203,23 @@ def write_sql_file():
         for city in model['cities']:
             city_query = textwrap.dedent(f"""\
             INSERT INTO cities VALUES (
+            '{city['wikidata_id']}',
+            '{city['name']}',
+            '{city['country']}',
+            '{city['hierarchy']}'
+            );
+            """)
+            
+            model_city_query = textwrap.dedent(f"""\
+            INSERT INTO model_city VALUES (
             NULL,
-            '{city}',
-            '{model['id']}',
-            '{model['country']}'
+            '{city['wikidata_id']}',
+            '{model['id']}'
             );
             """)
 
             queries.append(city_query)
+            queries.append(model_city_query)
         
         for input in model['inputs']:
             input_query = textwrap.dedent(f"""\
@@ -207,7 +245,7 @@ def write_sql_file():
         for query in queries:
             f.write(query)
 
-write_sql_file()
+
 @pytest.fixture()
 def temp_db_path(monkeypatch, tmp_path):
     DB_PATH = f'{str(tmp_path)}/db_test.db'

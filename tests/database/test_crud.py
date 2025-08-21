@@ -44,11 +44,11 @@ def test_execute_query(temp_db_path):
 
 def test_execute_many(temp_db_path):
     expected = [('Paris',), ('Paris',)]
-    input_query = queries['test_execute_query_insert']
+    input_query = queries['test_execute_query_insert_many']
 
     from database.crud import execute_many, fetch_all
 
-    execute_many(input_query, [(), ()])
+    execute_many(input_query, [("D"), ("E")])
     get_query = queries['test_execute_query_get']
     res = fetch_all(get_query)
     
@@ -57,11 +57,11 @@ def test_execute_many(temp_db_path):
 
 def test_execute_with_pandas(temp_db_path):
     expected = ['Paris', 'Paris']
-    input_query = queries['test_execute_query_insert']
+    input_query = queries['test_execute_query_insert_many']
     
     from database.crud import execute_many, execute_with_pandas
 
-    execute_many(input_query, [(), ()])
+    execute_many(input_query, [("D"), ("E")])
 
     get_query = queries['test_execute_query_get']
     res = execute_with_pandas(get_query)
@@ -71,7 +71,7 @@ def test_execute_with_pandas(temp_db_path):
 @pytest.mark.parametrize(
         "query_key, params, expected",
         [
-            ('get_all_countries', (), ['Brazil', 'England', 'Norway']),
+            ('get_all_countries', (), ['Brazil', 'Norway', 'United Kingdom']),
             ('get_all_cities', {'country':'Norway'}, ['Bergen', 'Oslo'])
         ]
 )
@@ -89,9 +89,10 @@ def test_query_get_models_from_city(temp_db_path):
     expected = [1999]
     query = queries['get_models_from_city']
     query = query.format(sort_by='data_year DESC')
-    params = {'city': 'Belo Horizonte'}
+    params = {'city_id': 'Q42800'}
 
     from database.crud import execute_with_pandas
 
     res = execute_with_pandas(query, params)
+    print(res)
     assert res['data_year'].to_list() == expected

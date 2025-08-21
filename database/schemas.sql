@@ -12,12 +12,18 @@ CREATE TABLE IF NOT EXISTS models (
 );
 
 CREATE TABLE IF NOT EXISTS cities (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     city TEXT,
-    models_id TEXT,
     country TEXT,
-    FOREIGN KEY(models_id) REFERENCES models(id),
-    FOREIGN KEY(country) REFERENCES models(country)
+    hierarchy TEXT
+);
+
+CREATE TABLE IF NOT EXISTS model_city (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cities_id TEXT,
+    models_id TEXT,
+    FOREIGN KEY(cities_id) REFERENCES cities(id),
+    FOREIGN KEY(models_id) REFERENCES models(id)
 );
 
 CREATE TABLE IF NOT EXISTS inputs (

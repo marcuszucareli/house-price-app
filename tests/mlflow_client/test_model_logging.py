@@ -3,8 +3,10 @@ import pandas as pd
 import numpy as np
 import pathlib
 from datetime import datetime
-from mlflow_client.model_logging import Inputs, ModelLogInput, max_chars
-from tests.mlflow_client.conftest import std_input_cases, base_ModelLogInput
+from mlflow_client.model_logging import Inputs, Cities, \
+    ModelLogInput, max_chars
+from tests.mlflow_client.conftest import std_input_cases, std_model_cases, \
+    base_ModelLogInput
 
 
 
@@ -43,6 +45,23 @@ def test_Inputs_validation_error(input_data, expected):
 
     with pytest.raises(expected):
         Inputs(**model_inputs)
+
+
+# NOTE: This test is commented out to avoid real API calls to wikidata during 
+# regular test runs.
+# It should only be uncommented and run if changes are made to the `Cities`
+# class that affect API behavior. Use caution and consider mocking the API 
+# call instead as done in the base_ModelLogInput redefiniton in 
+# /tests/mlflow_client/conftest.py:
+# [Cities.model_construct(**city) for city in std_model_cases[0]['cities']]
+
+# def test_cities_success():
+#     city_case = std_model_cases[0]['cities'][0]
+#     city = Cities(wikidata_id=city_case['wikidata_id'])
+
+#     assert city.name == city_case['name']
+#     assert city.country == city_case['country']
+#     assert city.hierarchy == city_case['hierarchy']
 
 
 def test_ModelLogInput_success():

@@ -17,8 +17,8 @@ SELECT *
 FROM models
 WHERE id IN (
     SELECT models_id
-    FROM cities
-    WHERE (:city IS NULL OR city = :city)
+    FROM model_city
+    WHERE (:city_id IS NULL OR cities_id = :city_id)
 )
 ORDER BY {sort_by}
 """,
@@ -42,14 +42,23 @@ SELECT id FROM models WHERE 1 = ?
 
     'test_execute_query_insert': """
 INSERT INTO cities VALUES (
-    NULL,
-    "Paris",
     "D",
-    "France"
+    "Paris",
+    "France",
+    "Ile-de-France"
+)
+""",
+
+    'test_execute_query_insert_many': """
+INSERT INTO cities VALUES (
+    ?,
+    "Paris",
+    "France",
+    "Ile-de-France"
 )
 """,
 
     'test_execute_query_get': """
-SELECT city FROM cities WHERE models_id = "D"
+SELECT city FROM cities WHERE id = "D" OR id = "E"
 """
 }

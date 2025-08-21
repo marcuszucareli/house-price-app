@@ -6,7 +6,7 @@ import zipfile
 import shutil
 import json
 from sklearn.linear_model import LinearRegression
-from mlflow_client.model_logging import Inputs
+from mlflow_client.model_logging import Inputs, Cities
 from mlflow_client.config import MODEL_JSON_NAME
 from tests.conftest import std_input_cases, standard_uuid, std_model_cases
 
@@ -18,17 +18,14 @@ from tests.conftest import std_input_cases, standard_uuid, std_model_cases
 def scikit_model():
     data = {}
     for input_case in std_input_cases:
-        data[input_case['column_name']] = [i for i in range(100)]
+        if input_case['type'] == 'map': 
+            data[input_case['lat']] = [i for i in range(100)]
+            data[input_case['lng']] = [i for i in range(100)]
+        else:
+            data[input_case['column_name']] = [i for i in range(100)]
     
-    data['column_1'] = [i for i in range(100)]
-
-    # An X just to model a simple regression (wont be used to tests validation)
-    X = pd.DataFrame(
-        data=data
-    )
-
     # X features using all input cases
-    # X = pd.DataFrame(data=X)
+    X = pd.DataFrame(data=data)
 
     # Define a test regression model
     y = np.array([i for i in range(100)])
@@ -46,6 +43,9 @@ base_ModelLogInput = {
     'x_test': X_generic_model,
     'y_test': y_generic_model,
     'inputs': [Inputs(**args) for args in std_input_cases],
+    'cities': [
+         Cities.model_construct(**city) \
+            for city in std_model_cases[0]['cities']]
 }
 
 # ########################
@@ -63,7 +63,7 @@ def modelLogInput_instance(monkeypatch, tmp_path):
         "mlflow_client.model_logging.DEV_FOLDER_PATH", tmp_path)
 
     from mlflow_client.model_logging import ModelLogInput
-
+    print(base_ModelLogInput['x_test'])
     return ModelLogInput(**base_ModelLogInput)
 
 

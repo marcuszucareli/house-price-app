@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import json
 import uuid
+import requests
 from pydantic import BaseModel
 from dataclasses import field
 from typing import Optional, Any
@@ -16,7 +17,12 @@ from mlflow_client.config import MODEL_FOLDER_NAME, MODEL_JSON_NAME, \
 
 # Define the maximum number of chars in strings
 max_chars = 64
-
+WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
+HEADERS = {
+    "Accept": "application/sparql-results+json",
+    "User-Agent": \
+        "MyGeoApp/0.1 (https://github.com/marcuszucareli/house-price-app)"
+}
 
 class Inputs(BaseModel):
     """
@@ -89,10 +95,109 @@ class Inputs(BaseModel):
             raise ValueError("label cannot be longer than 128 characters")
 
 
+class Cities(BaseModel):
+    """
+    Represents a city with its Wikidata ID, name, country, and administrative 
+    hierarchy.
+
+    Args:
+        wikidata_id (str): QID of the city in 
+        [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) (e.g., 
+        "Q1297" for Chicago)
+        name (str): Name of the city in English
+        country (str): Name of the country in English
+        hierarchy (List[str]): List of administrative divisions from closest 
+        to city to most general, excluding the country
+    """
+
+    wikidata_id: str
+    name: str = ''
+    country: str = ''
+    hierarchy: str = ''
+
+    def model_post_init(self, context):
+            self.get_data()
+            if self.name == '' or self.country == '':
+                raise ValueError(f"Failed to initialize Cities instance.")
+
+    def get_data(self):
+        # Try to fetch all data; if any fails, raise exception
+        try:
+            self.name = self._get_label(self.wikidata_id)
+            if not self.name:
+                raise ValueError(
+                    f"City label not found for QID {self.wikidata_id}")
+            
+            self.country = self._get_country()
+            if not self.country:
+                raise ValueError(
+                    f"Country not found for QID {self.wikidata_id}")
+            
+            self.hierarchy = self._get_hierarchy()
+        
+        except Exception as e:
+            # Prevent creation of invalid instance
+            raise ValueError(f"Failed to initialize Cities instance: {e}")
+
+    def _get_label(self, qid: str) -> str:
+        """Returns the English label for a Wikidata entity."""
+        query = f"""
+        SELECT ?label WHERE {{
+          wd:{qid} rdfs:label ?label .
+          FILTER(LANG(?label) = "en")
+        }}
+        """
+        response = requests.get(
+            WIKIDATA_SPARQL_URL, params={"query": query}, headers=HEADERS)
+        response.raise_for_status()
+        data = response.json()
+        results = data.get("results", {}).get("bindings", [])
+        return results[0]["label"]["value"] if results else ""
+
+    def _get_country(self) -> str:
+        """Fetches the country name from Wikidata using P17."""
+        query = f"""
+        SELECT ?country WHERE {{
+          wd:{self.wikidata_id} wdt:P17 ?country .
+        }}
+        """
+        response = requests.get(
+            WIKIDATA_SPARQL_URL, params={"query": query}, headers=HEADERS)
+        response.raise_for_status()
+        data = response.json()
+        country_qid = \
+            data["results"]["bindings"][0]["country"]["value"].split("/")[-1]
+        return self._get_label(country_qid)
+
+    def _get_hierarchy(self) -> list[str]:
+        """
+        Returns a simplified hierarchy: [City Name, Main Administrative 
+        Division (state/province/region)].
+        """
+        query = f"""
+        SELECT ?admin WHERE {{
+          wd:{self.wikidata_id} wdt:P131 ?admin .
+        }} LIMIT 1
+        """
+        response = requests.get(
+            WIKIDATA_SPARQL_URL, params={"query": query}, headers=HEADERS)
+        response.raise_for_status()
+        data = response.json()
+        bindings = data.get("results", {}).get("bindings", [])
+
+        if bindings:
+            admin_qid = bindings[0]["admin"]["value"].split("/")[-1]
+            admin_label = self._get_label(admin_qid)
+            return admin_label
+        else:
+            # No administrative division found
+            return ''
+
+
 class ModelLogInput(BaseModel):
     """
-    Validates model information to ensure compliance with the project's logging
-     standards.
+    Validates model information to ensure compliance with the project's 
+    standards.
     
     Args:
         model (Any): A machine learning model compatible with the MLflow 
@@ -116,11 +221,9 @@ class ModelLogInput(BaseModel):
         algorithm (str): The algorithm used to train the model (e.g., linear 
         regression, random forest, XGBoost, etc.).
         data_year (int): The earliest year of the data used to train the model.
-        country (str): The country associated with the data. Must follow the 
-        ISO 3166 country name standard.
-        See: https://www.iso.org/iso-3166-country-codes.html
-        cities (list[str]): A list of cities associated with the data.
-        inputs (list[Inputs]): A list of user-provided inputs required to make 
+        cities (list[Cities]): List of cities related to the data, each 
+        represented as an instance of the City class.
+        inputs (list[Inputs]): List of user-provided inputs required to make 
         a prediction. Do not include feature engineering parameters—this list 
         should contain only the inputs explicitly required from the user.
         links (Optional[(dict[str]], optional): A dict of usefull URL's for the
@@ -156,8 +259,7 @@ class ModelLogInput(BaseModel):
     # Tags
     algorithm: str
     data_year: int
-    country: str
-    cities: list[str]
+    cities: list[Cities]
     inputs: list[Inputs]
     author: Optional[str] = None
     links: Optional[dict[str, str]] = [{}]

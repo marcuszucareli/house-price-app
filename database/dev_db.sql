@@ -11,16 +11,26 @@ INSERT INTO models VALUES (
 '{"Github": "https://github.com/", "Linkedin": "https://www.linkedin.com/"}'
 );
 INSERT INTO cities VALUES (
-NULL,
+'Q42800',
 'Belo Horizonte',
-'00000000-0000-0000-0000-000000000000',
-'Brazil'
+'Brazil',
+'Minas Gerais'
+);
+INSERT INTO model_city VALUES (
+NULL,
+'Q42800',
+'00000000-0000-0000-0000-000000000000'
 );
 INSERT INTO cities VALUES (
-NULL,
+'Q1439211',
 'Três Corações',
-'00000000-0000-0000-0000-000000000000',
-'Brazil'
+'Brazil',
+'Minas Gerais'
+);
+INSERT INTO model_city VALUES (
+NULL,
+'Q1439211',
+'00000000-0000-0000-0000-000000000000'
 );
 INSERT INTO inputs VALUES (
 NULL,
@@ -95,10 +105,15 @@ INSERT INTO models VALUES (
 '{"Github": "https://github.com/"}'
 );
 INSERT INTO cities VALUES (
-NULL,
+'Q350',
 'Cambridge',
-'11111111-1111-1111-1111-111111111111',
-'England'
+'United Kingdom',
+'Cambridge'
+);
+INSERT INTO model_city VALUES (
+NULL,
+'Q350',
+'11111111-1111-1111-1111-111111111111'
 );
 INSERT INTO inputs VALUES (
 NULL,
@@ -161,16 +176,26 @@ INSERT INTO models VALUES (
 '{"Linkedin": "https://www.linkedin.com/"}'
 );
 INSERT INTO cities VALUES (
-NULL,
+'Q585',
 'Oslo',
-'22222222-2222-2222-2222-222222222222',
-'Norway'
+'Norway',
+'Oslo Municipality'
+);
+INSERT INTO model_city VALUES (
+NULL,
+'Q585',
+'22222222-2222-2222-2222-222222222222'
 );
 INSERT INTO cities VALUES (
-NULL,
+'Q26793',
 'Bergen',
-'22222222-2222-2222-2222-222222222222',
-'Norway'
+'Norway',
+'Bergen Municipality'
+);
+INSERT INTO model_city VALUES (
+NULL,
+'Q26793',
+'22222222-2222-2222-2222-222222222222'
 );
 INSERT INTO inputs VALUES (
 NULL,
