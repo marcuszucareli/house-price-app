@@ -110,8 +110,8 @@ def get_cities(
 
     query = queries['get_all_cities'] 
     df = execute_with_pandas(query, param)
-    countries = df['city'].to_list()
-    return {"cities": countries}
+    cities_dict = dict(zip(df["city"], df["id"]))
+    return {"cities": cities_dict}
 
 
 @app.get(
@@ -185,9 +185,9 @@ def get_models(
                 status_code=400, detail="Invalid sortBy parameter")
     
     if city == 'all':
-        param = {'city': None}
+        param = {'city_id': None}
     else:
-        param = {'city': city}
+        param = {'city_id': city}
         
     df = execute_with_pandas(formatted_query, param)
     df['links'] = df['links'].apply(lambda x: json.loads(x))

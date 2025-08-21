@@ -21,6 +21,10 @@ class Models:
                 logging.error(response)
                 return None
         except Exception as e:
+            logging.error(f'endpoint: {endpoint}')
+            logging.error(f'params: {params}')
+            logging.error(f'path: {path}')
+            logging.error(f'body: {body}')
             logging.error(e)
             return None
         

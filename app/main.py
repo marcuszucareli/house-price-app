@@ -3,6 +3,8 @@ import folium
 from streamlit_folium import st_folium
 from app.client import Models
 import requests
+import logging
+
 
 def get_city_coord(city: str):
     url = "https://nominatim.openstreetmap.org/search"
@@ -61,7 +63,8 @@ def update_country():
     
 
 def update_city():
-    st.session_state['model'].city = st.session_state['city']
+    st.session_state['model'].city = \
+        st.session_state['model'].cities[st.session_state['city']]
     if st.session_state['model'].city != None:
         st.session_state['model'].get_model()
         st.session_state['model'].get_inputs()
@@ -157,7 +160,7 @@ if st.session_state['model'].country != None:
     st.markdown('### Choose a **city**:')
     st.selectbox(
         'City',
-        [None] + st.session_state['model'].cities,
+        [None] + list(st.session_state['model'].cities.keys()),
         on_change=update_city,
         key='city')
 
@@ -179,7 +182,7 @@ if has_coordinates:
     # Get city coords and boundaries
     if not st.session_state['markers']:
         # get boundaries from api
-        city_data = get_city_coord(st.session_state.model.city)
+        city_data = get_city_coord(st.session_state['city'])
         use_bbox = True
     else:
         # User marker and zoom option if user already selected the address

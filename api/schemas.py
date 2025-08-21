@@ -36,8 +36,8 @@ class GetCountriesResponse(BaseModel):
 
 
 class GetCitiesResponse(BaseModel):
-    cities: list[str] = Field(
-        default_factory=list,
+    cities: dict[str, str] = Field(
+        default_factory=dict,
         description="List of cities supported by available models sorted " \
         "alphabetically."
     )

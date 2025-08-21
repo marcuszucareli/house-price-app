@@ -6,7 +6,7 @@ ORDER BY country
 """,
 
     'get_all_cities': """
-SELECT DISTINCT city
+SELECT id, city
 FROM cities
 WHERE (:country IS NULL OR country = :country)
 ORDER BY city

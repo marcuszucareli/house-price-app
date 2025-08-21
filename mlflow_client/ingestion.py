@@ -52,14 +52,21 @@ def prepare_sql_values(model_metadata):
     # Define cities's table values
     cities = model_metadata['cities']
     city_table_values = []
+    model_city_values = []
     for city in cities:
         city_value = (
-            None,   # Autoincrement ID
-            city,
-            model_metadata['id'],
-            model_metadata['country']
+            city['wikidata_id'],
+            city['name'],
+            city['country'],
+            city['hierarchy'],
+        )
+        model_city_value = (
+            None,
+            city['wikidata_id'],
+            model_metadata['id']
         )
         city_table_values.append(city_value)
+        model_city_values.append(model_city_value)
 
     # Define inputs' table values
     inputs_table_values = []
@@ -80,7 +87,8 @@ def prepare_sql_values(model_metadata):
         )
         inputs_table_values.append(input_value)
 
-    return model_table_values, city_table_values, inputs_table_values
+    return model_table_values, city_table_values, model_city_values,\
+        inputs_table_values
 
 
 def make_ingestion():
@@ -101,7 +109,8 @@ def make_ingestion():
             as f:
             model_metadata = json.load(f)
 
-        model_table_values, city_table_values, inputs_table_values = \
+        model_table_values, city_table_values, \
+        model_city_values, inputs_table_values = \
             prepare_sql_values(model_metadata)
 
         # Insert data in database and save the model in the production folder
@@ -121,6 +130,12 @@ def make_ingestion():
                     c.execute(
                         "INSERT INTO cities VALUES (?, ?, ?, ?)",
                         city
+                    )
+                # Insert city model relation
+                for relation in model_city_values:
+                    c.execute(
+                        "INSERT INTO model_city VALUES (?, ?, ?)",
+                        relation
                     )
                 # Insert inputs
                 for model_input in inputs_table_values:
