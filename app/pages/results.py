@@ -7,3 +7,4 @@ st.set_page_config(
 )
 
 st.markdown('# You are in results')
+st.session_state['prediction']['value']

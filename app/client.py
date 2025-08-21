@@ -1,21 +1,27 @@
 import requests
 import json
 import os
+import logging
 
 API_BASE_URL = os.getenv('API_BASE_URL')
 
 class Models:
 
-    def call_api(self, endpoint, params=None):
+    def call_api(self, endpoint, params=None, path='', body=None):
         try:
-            url = f'{API_BASE_URL}/{endpoint}'
-            response = requests.get(url, params=params)
+            url = f'{API_BASE_URL}/{endpoint}/{path}'
+            if body is not None:
+                response = requests.post(url, params=params, json=body)
+            else:
+                response = requests.get(url, params=params)
             if response.status_code == 200:
                 data = response.json()
                 return data[endpoint]
             else:
+                logging.error(response)
                 return None
-        except:
+        except Exception as e:
+            logging.error(e)
             return None
         
     def __init__(self):
@@ -44,11 +50,13 @@ class Models:
             self.model = models[0]
 
     def get_inputs(self):
-        response = self.call_api('inputs', {'model_id': self.model['id']})
-        for i, item in enumerate(response):
-            if item['type'] == 'categorical':
-                response[i]['options'] =  json.loads(response[i]['options'])
+        response = self.call_api('inputs', path=f'{self.model['id']}')
         self.inputs = response
+
+    def get_prediction(self, body):
+        response = self.call_api(
+            'predict', path=f'{self.model['id']}', body=body)
+        return response
 
     def reset(self, level=0):
         for key, value in self._index.items():

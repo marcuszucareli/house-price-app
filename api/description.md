@@ -22,6 +22,7 @@ encourage you to use the city to search for the appropriate model.
 
 ## Finding a model
 Let's see the models for the welcoming city of Belo Horizonte in Brazil
+
 ```python
 import requests
 
@@ -29,10 +30,10 @@ import requests
 url = "{API_BASE_URL}/models/"
 
 # Params
-params = {{
+params = {{{{
     "city": "Belo Horizonte",
     "sortBy": "year" # You can also sort by the metrics mae, mape, r2 and rmse
-}}
+}}}}
 
 # Call the API
 response = requests.get(url, params=params)

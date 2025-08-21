@@ -193,7 +193,7 @@ def write_sql_file():
             '{input['lng']}',
             '{input['label']}',
             '{input['type']}',
-            "{input['options']}",
+            '{json.dumps(input['options'], ensure_ascii=False)}',
             {f'"{input['description']}"' if input['description'] != '' else 'NULL'},
             {f"'{input['unit']}'" if input['unit'] is not None else 'NULL'}
             );
@@ -207,7 +207,7 @@ def write_sql_file():
         for query in queries:
             f.write(query)
 
-
+write_sql_file()
 @pytest.fixture()
 def temp_db_path(monkeypatch, tmp_path):
     DB_PATH = f'{str(tmp_path)}/db_test.db'

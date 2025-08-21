@@ -2,8 +2,10 @@ FROM python:3.13-slim
 
 WORKDIR /service
 
+COPY ./requirements/lock.txt lock_requirements.txt
 COPY ./requirements/api.txt requirements.txt
 
+RUN pip install --no-cache-dir -r lock_requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./api ./api

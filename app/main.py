@@ -4,7 +4,6 @@ from streamlit_folium import st_folium
 from app.client import Models
 import requests
 
-
 def get_city_coord(city: str):
     url = "https://nominatim.openstreetmap.org/search"
     params = {
@@ -76,14 +75,35 @@ def update_city():
 
 
 def submit():
-    for key, item in st.session_state.items():
-        print(key, item)
+    predict_inputs = {'features': {}}
+    
+    for input in st.session_state['model'].inputs:
+        if input['type'] == 'map':
+            lat_column = input['lat']
+            lng_column = input['lng']
+            predict_inputs['features'][lat_column] = \
+                st.session_state['markers'][0]['coords'][0]
+            predict_inputs['features'][lng_column] = \
+                st.session_state['markers'][0]['coords'][1]
+        else:
+            column_name = input['column_name']
+            predict_inputs['features'][column_name] = \
+                st.session_state[column_name]
+    
+    prediction = st.session_state['model'].get_prediction(predict_inputs)
+    data_for_prediction_page = {
+        'value': prediction,
+        'model': model
+    }
+    st.session_state['prediction'] = data_for_prediction_page
     st.session_state['submited'] = True
 
 
 # Check if submited was pressed
 if 'submited' in st.session_state:
     del st.session_state.submited
+    get_models.clear()
+    del st.session_state.model
     st.switch_page('pages/results.py')
 
 # Get models instance
@@ -183,8 +203,18 @@ if has_coordinates:
         ).add_to(m)
 
     # Render map
+    map_height = 450
     st.markdown("""### Select the location of your home on the map""")
-    st_data = st_folium(m, width=725)
+    st_data = st_folium(m, width=725, height=map_height)
+
+    # Workaround to fix blank space bug in st_folium
+    st.markdown(f"""
+        <style>
+            iframe[title="streamlit_folium.st_folium"] {{
+                height: {map_height}px !important;
+            }}
+        </style>
+    """, unsafe_allow_html=True)
 
     # Update map on click
     if st_data and st_data.get("last_clicked"):

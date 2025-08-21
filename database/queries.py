@@ -23,6 +23,12 @@ WHERE id IN (
 ORDER BY {sort_by}
 """,
 
+    'get_model': """
+SELECT *
+FROM models
+WHERE id = :model_id
+""",
+
     'get_inputs': """
 SELECT *
 FROM inputs

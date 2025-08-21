@@ -241,10 +241,18 @@ class ModelLogInput(BaseModel):
         # Validate data_year
         if self.data_year > datetime.now().year:
             raise ValueError("data_year must not exceed the current year.")
+        
+        features = self.x_test.columns.to_list()
         # Validate inputs
         for input in self.inputs:
-            if input.column_name not in self.x_test.columns.to_list():
-                raise ValueError(f"{input.column_name} is not a x_test column")
+            if input.type == 'map':
+                if input.lat not in features or input.lng not in features:
+                    raise ValueError(
+                        f"{input.column_name} is not a x_test column")
+            else:
+                if input.column_name not in features:
+                    raise ValueError(
+                        f"{input.column_name} is not a x_test column")
 
 
     def _prepare_json(self, zip_id):
@@ -298,3 +306,44 @@ To complete your contribution, please follow these steps:
                 return folder_path
             except Exception as e:
                 raise ValueError(f'Error saving the model:\n{e}')
+
+
+    def test_my_model(self, model_path):
+        """
+        Test the ingestion process of a model and insert it to the dev 
+        database. Use it to test the model in streamlit.
+
+        Args:
+            model (str): the path to the zip file of the model.
+        """
+        import os
+        import shutil
+        from pathlib import Path
+        from mlflow_client.ingestion import make_ingestion
+
+        storage_path = Path(os.getenv("STORAGE_PATH", "/tmp/storage"))
+        ingestion_path = Path(os.getenv("INGESTION_PATH", "/tmp/ingestion"))
+
+        # Handle directory deletion/creation
+        def prepare_dir(path: Path):
+            if path.exists():
+                for item in path.iterdir():
+                    if item.is_file():
+                        item.unlink()
+                    elif item.is_dir():
+                        shutil.rmtree(item)
+            else:
+                path.mkdir(parents=True, exist_ok=True)
+
+        # Prepare folders
+        prepare_dir(storage_path)
+        prepare_dir(ingestion_path)
+
+        # Caminho do modelo de origem (exemplo)
+        model_path_obj = Path(model_path)
+
+        # Copy file to ingestion folder
+        dest_file = ingestion_path / model_path_obj.name
+        shutil.copy2(model_path_obj, dest_file)
+
+        make_ingestion()

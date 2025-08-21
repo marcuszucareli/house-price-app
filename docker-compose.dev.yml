@@ -12,11 +12,12 @@ services:
       - ./tests/database:/service/tests/database
       - ./tests/data:/service/tests/data
       - ./tests/conftest.py:/service/tests/conftest.py
+      - ./tmp:/service/tmp
     ports:
       - "8000:8000"
     networks:
       - app-network
-    command: sh -c "python -m database.init_db && uvicorn api.api:app --host 0.0.0.0 --port 8000"
+    command: sh -c "python -m database.init_db && uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload"
 
   app:
     build:
@@ -30,6 +31,7 @@ services:
       - ./app/.env.dev
     volumes:
       - ./app:/service/app
+      - ./tmp:/service/tmp
     ports:
       - "8080:8080"
     networks:
@@ -50,6 +52,8 @@ services:
       - ./model_development:/service/model_development
       - ./tests/data:/service/tests/data
       - ./tests/conftest.py:/service/tests/conftest.py
+      - ./examples:/service/examples
+      - ./tmp/:/service/tmp
     ports:
       - "5000:5000"
     networks:

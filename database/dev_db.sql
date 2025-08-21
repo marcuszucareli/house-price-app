@@ -30,7 +30,7 @@ NULL,
 'lng',
 'Neighbourhood',
 'categorical',
-"['Morumbi', 'América']",
+'["Morumbi", "América"]',
 "Property neighbourhood",
 NULL
 );
@@ -42,7 +42,7 @@ NULL,
 'lng',
 'Is your house new?',
 'bool',
-"[]",
+'[]',
 "If your house has less than 5 years",
 NULL
 );
@@ -54,7 +54,7 @@ NULL,
 'lng',
 'Number of bedrooms in the house',
 'int',
-"[]",
+'[]',
 NULL,
 'un'
 );
@@ -66,7 +66,7 @@ NULL,
 'lng',
 'Area',
 'float',
-"[]",
+'[]',
 "The property size in m².",
 'm²'
 );
@@ -78,7 +78,7 @@ NULL,
 'longitude',
 'Coordinates',
 'map',
-"[]",
+'[]',
 "house's Latitude and Longiude",
 NULL
 );
@@ -108,7 +108,7 @@ NULL,
 'lng',
 'Is your house new?',
 'bool',
-"[]",
+'[]',
 "If your house has less than 5 years",
 NULL
 );
@@ -120,7 +120,7 @@ NULL,
 'lng',
 'Number of bedrooms in the house',
 'int',
-"[]",
+'[]',
 NULL,
 'un'
 );
@@ -132,7 +132,7 @@ NULL,
 'lng',
 'Area',
 'float',
-"[]",
+'[]',
 "The property size in m².",
 'm²'
 );
@@ -144,7 +144,7 @@ NULL,
 'longitude',
 'Coordinates',
 'map',
-"[]",
+'[]',
 "house's Latitude and Longiude",
 NULL
 );
@@ -180,7 +180,7 @@ NULL,
 'lng',
 'Is your house new?',
 'bool',
-"[]",
+'[]',
 "If your house has less than 5 years",
 NULL
 );
@@ -192,7 +192,7 @@ NULL,
 'lng',
 'Number of bedrooms in the house',
 'int',
-"[]",
+'[]',
 NULL,
 'un'
 );
@@ -204,7 +204,7 @@ NULL,
 'lng',
 'Area',
 'float',
-"[]",
+'[]',
 "The property size in m².",
 'm²'
 );
