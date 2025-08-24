@@ -14,6 +14,7 @@ from sklearn.metrics import  r2_score, root_mean_squared_error, \
     mean_absolute_percentage_error, mean_absolute_error
 from mlflow_client.config import MODEL_FOLDER_NAME, MODEL_JSON_NAME, \
     DEV_FOLDER_PATH
+from database.init_db import init_db
 
 # Define the maximum number of chars in strings
 max_chars = 64
@@ -436,6 +437,9 @@ To complete your contribution, please follow these steps:
                         shutil.rmtree(item)
             else:
                 path.mkdir(parents=True, exist_ok=True)
+
+        # Reset db
+        init_db()
 
         # Prepare folders
         prepare_dir(storage_path)

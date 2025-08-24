@@ -9,8 +9,6 @@ from tests.mlflow_client.conftest import std_input_cases, std_model_cases, \
     base_ModelLogInput
 
 
-
-
 @pytest.mark.parametrize("input_data", std_input_cases)
 def test_Inputs_validation_success(input_data):
     model_input = Inputs(**input_data)

@@ -128,7 +128,7 @@ def make_ingestion():
                 # Insert city
                 for city in city_table_values:
                     c.execute(
-                        "INSERT INTO cities VALUES (?, ?, ?, ?)",
+                        "INSERT OR IGNORE INTO cities VALUES (?, ?, ?, ?)",
                         city
                     )
                 # Insert city model relation

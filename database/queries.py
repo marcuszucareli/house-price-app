@@ -6,7 +6,7 @@ ORDER BY country
 """,
 
     'get_all_cities': """
-SELECT id, city
+SELECT id, city, hierarchy
 FROM cities
 WHERE (:country IS NULL OR country = :country)
 ORDER BY city

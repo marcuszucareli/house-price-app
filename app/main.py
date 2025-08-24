@@ -1,9 +1,9 @@
 import streamlit as st
 import folium
+import requests
 from streamlit_folium import st_folium
 from app.client import Models
-import requests
-import logging
+from app.translations import main, available_languages
 
 
 def get_city_coord(city: str):
@@ -51,7 +51,16 @@ st.set_page_config(
 def get_models():
     return Models()
     
-    
+
+def update_language():
+    if 'lang' in st.session_state:
+        st.session_state['lang'] = \
+            available_languages[st.session_state['language']]
+    else:
+        st.session_state.lang = \
+            available_languages[st.session_state['language']]
+
+
 def update_country():
     st.session_state['model'].country = st.session_state['country']
     if st.session_state['model'].country != None:
@@ -79,6 +88,7 @@ def update_city():
 
 def submit():
     predict_inputs = {'features': {}}
+    user_inputs = {}
     
     for input in st.session_state['model'].inputs:
         if input['type'] == 'map':
@@ -88,15 +98,22 @@ def submit():
                 st.session_state['markers'][0]['coords'][0]
             predict_inputs['features'][lng_column] = \
                 st.session_state['markers'][0]['coords'][1]
+            user_inputs['Latitude'] = \
+                st.session_state['markers'][0]['coords'][0]
+            user_inputs['Longitude'] = \
+                st.session_state['markers'][0]['coords'][1]
         else:
             column_name = input['column_name']
             predict_inputs['features'][column_name] = \
                 st.session_state[column_name]
+            user_inputs[input['label']] = st.session_state[column_name]
     
     prediction = st.session_state['model'].get_prediction(predict_inputs)
     data_for_prediction_page = {
         'value': prediction,
-        'model': model
+        'model': st.session_state['model'],
+        'inputs': user_inputs,
+        'language': 'pt'
     }
     st.session_state['prediction'] = data_for_prediction_page
     st.session_state['submited'] = True
@@ -139,25 +156,31 @@ else:
     get_models.clear()
     st.stop()
 
-# Welcome message
-st.markdown("""
-# Welcome to the World Real Estate Evaluator!
 
-In this app, you can evaluate properties from various cities around the world!
-            
-### Start by choosing a **country**:
-""")
+if 'lang' not in st.session_state:
+    st.session_state.lang = available_languages['English']
+
+# Language selector
+st.selectbox(
+    '🌐 Language',
+    available_languages.keys(),
+    key='language',
+    on_change=update_language,
+    )
+
+# Welcome message
+st.markdown(main['choose_country'][st.session_state['lang']])
 
 # Country selectbox
 st.selectbox(
-    'Country',
+    '',
     st.session_state['model'].countries,
     on_change=update_country,
     key='country')
 
 # City selectbox
 if st.session_state['model'].country != None:
-    st.markdown('### Choose a **city**:')
+    st.markdown(main['choose_city'][st.session_state['lang']])
     st.selectbox(
         'City',
         [None] + list(st.session_state['model'].cities.keys()),
@@ -207,7 +230,7 @@ if has_coordinates:
 
     # Render map
     map_height = 450
-    st.markdown("""### Select the location of your home on the map""")
+    st.markdown(main['choose_location'][st.session_state['lang']])
     st_data = st_folium(m, width=725, height=map_height)
 
     # Workaround to fix blank space bug in st_folium
@@ -246,7 +269,7 @@ if has_coordinates:
 
 # Input model parameters
 if st.session_state['model'].inputs != None:
-    st.markdown('### Fill the details of your property:')
+    st.markdown(main['fill_form'][st.session_state['lang']])
 
     with st.form('form_inputs', clear_on_submit=True):
         for input in st.session_state['model'].inputs:
@@ -283,4 +306,8 @@ if st.session_state['model'].inputs != None:
                         help=input['description']
                     )
         
-        st.form_submit_button('Evaluate My Property', on_click=submit, type='primary',use_container_width=True)
+        st.form_submit_button(
+            main['button_form'][st.session_state['lang']],
+            on_click=submit,
+            type='primary',
+            use_container_width=True)

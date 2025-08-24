@@ -76,9 +76,16 @@ def test_prepare_sql_values_success(ingestion_flow_env):
     )
     
     city_table_values_true = []
+    model_city_values_true = []
     for city in std_json['cities']:
         city_table_values_true.append(
-            (None, city, std_json['id'], std_json['country'])
+            (city['wikidata_id'],
+             city['name'],
+             city['country'],
+             city['hierarchy'])
+        )
+        model_city_values_true.append(
+            (None, city['wikidata_id'], std_json['id'])
         )
     
     inputs_table_values_true = []
@@ -98,11 +105,12 @@ def test_prepare_sql_values_success(ingestion_flow_env):
             )
         )
 
-    model_table_values, city_table_values, inputs_table_values = \
-            prepare_sql_values(std_json)
+    model_table_values, city_table_values, model_city_values,\
+        inputs_table_values = prepare_sql_values(std_json)
     
     assert model_table_values_true == model_table_values
     assert city_table_values_true == city_table_values
+    assert model_city_values == model_city_values_true
     assert inputs_table_values_true == inputs_table_values
 
 
@@ -112,6 +120,8 @@ def test_sql_ingestion_success(ingestion_flow_env):
     storage_path = str(ingestion_flow_env[1])
     standard_uuid = str(ingestion_flow_env[5])
     std_json = ingestion_flow_env[4]
+    cities_ids = [city_id['wikidata_id'] for city_id in std_json['cities']]
+    cities_query_placeholders = ','.join(['?'] * len(cities_ids))
     
     zip_source_path = f'tests/data/{standard_uuid}.zip'
     zip_destination_path = f'{ingestion_path}/{standard_uuid}.zip'
@@ -123,8 +133,8 @@ def test_sql_ingestion_success(ingestion_flow_env):
     with get_connection() as conn:
         c = conn.cursor()
         c.execute('DELETE FROM models WHERE id = ?', (standard_uuid,))
-        c.execute('DELETE FROM cities WHERE models_id = ?', (standard_uuid,))
         c.execute('DELETE FROM inputs WHERE models_id = ?', (standard_uuid,))
+        c.execute('DELETE FROM model_city WHERE models_id = ?', (standard_uuid,))
 
     make_ingestion()
 
@@ -134,9 +144,14 @@ def test_sql_ingestion_success(ingestion_flow_env):
                   (standard_uuid,))
         query_models = c.fetchall()
 
-        c.execute('SELECT * FROM cities WHERE models_id=?',
-                  (standard_uuid,))
+        c.execute('SELECT * FROM cities ' + \
+                  f'WHERE id IN ({cities_query_placeholders})',
+                  cities_ids)
         query_cities = c.fetchall()
+
+        c.execute('SELECT * FROM model_city WHERE models_id=?',
+                  (std_json['id'],))
+        query_model_city = c.fetchall()
 
         c.execute('SELECT * FROM inputs WHERE models_id=?',
                   (standard_uuid,))
@@ -144,7 +159,10 @@ def test_sql_ingestion_success(ingestion_flow_env):
 
     # Check database registers
     assert len(query_models) == 1
+    print(query_cities)
+    print(std_json['cities'])
     assert len(query_cities) == len(std_json['cities'])
+    assert len(query_model_city) == len(std_json['cities'])
     assert len(query_inputs) == len(std_json['inputs'])
 
     # Check storage file

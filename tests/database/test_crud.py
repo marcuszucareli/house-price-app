@@ -72,7 +72,7 @@ def test_execute_with_pandas(temp_db_path):
         "query_key, params, expected",
         [
             ('get_all_countries', (), ['Brazil', 'Norway', 'United Kingdom']),
-            ('get_all_cities', {'country':'Norway'}, ['Bergen', 'Oslo'])
+            ('get_all_cities', {'country':'Norway'}, ['Q26793', 'Q585'])
         ]
 )
 def test_simple_queries(query_key, params, expected, temp_db_path):

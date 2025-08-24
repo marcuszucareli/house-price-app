@@ -110,6 +110,7 @@ def get_cities(
 
     query = queries['get_all_cities'] 
     df = execute_with_pandas(query, param)
+    df["city"] = df['city'] + ' (' + df['hierarchy'] + ')'
     cities_dict = dict(zip(df["city"], df["id"]))
     return {"cities": cities_dict}
 
