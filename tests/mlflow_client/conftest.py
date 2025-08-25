@@ -63,7 +63,6 @@ def modelLogInput_instance(monkeypatch, tmp_path):
         "mlflow_client.model_logging.DEV_FOLDER_PATH", tmp_path)
 
     from mlflow_client.model_logging import ModelLogInput
-    print(base_ModelLogInput['x_test'])
     return ModelLogInput(**base_ModelLogInput)
 
 

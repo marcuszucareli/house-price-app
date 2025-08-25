@@ -5,9 +5,10 @@ from tests.conftest import standard_uuid
 
 def test_fetch_all(temp_db_path):
     expected = [
-        (str(standard_uuid),),
-        (str(standard_uuid).replace('0','1'),),
-        (str(standard_uuid).replace('0','2'),)
+        (str(standard_uuid).replace('5','0'),),
+        (str(standard_uuid).replace('5','1'),),
+        (str(standard_uuid).replace('5','2'),),
+        (str(standard_uuid),)
     ]
     query = queries['test_fetch_query']
 
@@ -19,7 +20,7 @@ def test_fetch_all(temp_db_path):
 
 
 def test_fetch_one(temp_db_path):
-    expected = (str(standard_uuid),)
+    expected = (str(standard_uuid).replace('5', '0'),)
     query = queries['test_fetch_query']
 
     from database.crud import fetch_one

@@ -180,3 +180,4 @@ model_development/*
 # tmp
 tmp/*
 !tmp/.gitkeep
+!tmp/storage/**

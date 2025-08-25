@@ -3,7 +3,7 @@ import uuid
 import textwrap
 import json
 
-standard_uuid = uuid.UUID("00000000-0000-0000-0000-000000000000")
+standard_uuid = uuid.UUID("55555555-5555-5555-5555-555555555555")
 
 # Tables columns
 models_table_columns = [
@@ -100,7 +100,7 @@ std_input_cases = [
 
 std_model_cases = [
     {
-        'id': str(standard_uuid),
+        'id': str(standard_uuid).replace('5','0'),
         'model_link': 'https://www.santosfc.com.br/',
         'flavor': 'sklearn',
         'author': 'Edson Arantes do Nascimento',
@@ -127,7 +127,7 @@ std_model_cases = [
         }
     },
     {
-        'id': str(standard_uuid).replace('0','1'),
+        'id': str(standard_uuid).replace('5','1'),
         'model_link': 'https://en.wikipedia.org/wiki/Douglas_Adams',
         'flavor': 'sklearn',
         'author': 'Douglas Adams',
@@ -147,7 +147,7 @@ std_model_cases = [
         }
     },
     {   
-        'id': str(standard_uuid).replace('0','2'),
+        'id': str(standard_uuid).replace('5','2'),
         'model_link': 'https://www.aurora-music.com/',
         'flavor': 'sklearn',
         'author': 'Aurora Aksnes',
@@ -172,7 +172,183 @@ std_model_cases = [
             "Linkedin": "https://www.linkedin.com/"
         }
     },
+    {   
+        'id': '55555555-5555-5555-5555-555555555555',
+        'model_link': "url_to_the_place_you'll_save_the_model",
+        'flavor': 'sklearn',
+        'author': 'Marcus Zucareli',
+        'algorithm': 'random forest',
+        'data_year': 2024,
+        'cities': [
+            {
+                "wikidata_id": "Q191642",
+                "name": "São José dos Campos",
+                "country": "Brazil",
+                "hierarchy": "São Paulo"
+            }
+        ],
+        "inputs": [
+            {
+                "column_name": "rooms",
+                "lat": '',
+                "lng": '',
+                "label": "Quartos",
+                "type": "int",
+                "options": [],
+                "description": "Número de quartos do imóvel.",
+                "unit": None
+            },
+            {
+                "column_name": "parking",
+                "lat": '',
+                "lng": '',
+                "label": "Vagas",
+                "type": "int",
+                "options": [],
+                "description": "Número de vagas do imóvel.",
+                "unit": None
+            },
+            {
+                "column_name": "bathrooms",
+                "lat": '',
+                "lng": '',
+                "label": "Banheiros",
+                "type": "int",
+                "options": [],
+                "description": "Número de banheiros do imóvel.",
+                "unit": None
+            },
+            {
+                "column_name": "area",
+                "lat": '',
+                "lng": '',
+                "label": "Área",
+                "type": "float",
+                "options": [],
+                "description": "Tamanho do imóvel.",
+                "unit": None
+            },
+            {
+                "column_name": "has_multiple_parking_spaces",
+                "lat": '',
+                "lng": '',
+                "label": "Múltiplas vagas de garagem.",
+                "type": "bool",
+                "options": [],
+                "description": "Se o seu imóvel possui mais de uma vaga de garagem.",
+                "unit": None
+            },
+            {
+                "column_name": "neighbourhood",
+                "lat": '',
+                "lng": '',
+                "label": "Bairro",
+                "type": "categorical",
+                "options": [
+                    "Jardim Esplanada",
+                    "Conjunto Residencial Trinta e Um de Março",
+                    "Vila Betânia",
+                    "Parque Residencial Aquarius",
+                    "Floradas de São José",
+                    "Jardim São Dimas",
+                    "Parque Industrial",
+                    "Centro",
+                    "Vila Adyana",
+                    "Jardim Augusta",
+                    "Jardim América",
+                    "Vila Alexandrina",
+                    "Jardim Oswaldo Cruz",
+                    "Jardim Bela Vista",
+                    "Jardim Satélite",
+                    "Vila Ema",
+                    "Urbanova VI",
+                    "Jardim Fátima",
+                    "Jardim Santa Madalena",
+                    "Jardim das Colinas",
+                    "Vila Iracema",
+                    "Monte Castelo",
+                    "Jardim Sul",
+                    "Palmeiras de São José",
+                    "Vila Sanches",
+                    "Jardim Apolo I",
+                    "Jardim das Indústrias",
+                    "Parque Residencial Flamboyant",
+                    "Cidade Morumbi",
+                    "Condomínio Residencial Colinas do Paratehy",
+                    "Jardim Apolo II",
+                    "Jardim Esplanada II",
+                    "Vila Industrial",
+                    "Altos do Esplanada",
+                    "Chácaras São José",
+                    "Jardim Paraíso",
+                    "Loteamento Terra Brasilis",
+                    "Loteamento Urbanova II",
+                    "Jardim Topázio",
+                    "Condomínio Royal Park",
+                    "Jardim Americano",
+                    "Jardim Vale do Sol",
+                    "Bosque dos Eucaliptos",
+                    "Jardim Alvorada",
+                    "Jardim Aparecida",
+                    "Jardim Veneza",
+                    "Jardim Terras do Sul",
+                    "Residencial Frei Galvão",
+                    "Jardim Portugal",
+                    "Urbanova",
+                    "Jardim Oriente",
+                    "Jardim San Marino",
+                    "Jardim Uirá",
+                    "Jardim Souto",
+                    "Vila São Benedito",
+                    "Jardim Paraíso do Sol",
+                    "Vila Maria",
+                    "Cidade Vista Verde",
+                    "Vila Rangel",
+                    "Jardim Estoril",
+                    "Vila Tatetuba",
+                    "Loteamento Floresta",
+                    "Jardim Petrópolis",
+                    "Jardim Ismênia",
+                    "Jardim Nova América",
+                    "Jardim Maritéia",
+                    "Jardim Minas Gerais",
+                    "Residencial Bosque dos Ipês",
+                    "Jardim Rodolfo",
+                    "Jardim Aquárius",
+                    "Jardim Torrão de Ouro",
+                    "Bom Retiro",
+                    "Jardim Nova Michigan",
+                    "Vila Cardoso",
+                    "Jardim São Judas Tadeu",
+                    "Vila Rubi",
+                    "Parque Nova Esperança",
+                    "Jardim dos Bandeirantes",
+                    "Loteamento Residencial Vista Linda",
+                    "Jardim São José II",
+                    "Jardim Anhembi",
+                    "Jardim Copacabana",
+                    "Outros"
+                ],
+            "description": "Bairro do seu imóvel.",
+            "unit": None
+            },
+            {
+                "column_name": "",
+                "lat": "lat_value",
+                "lng": "lon_value",
+                "label": "Coordenadas",
+                "type": "map",
+                "options": [],
+                "description": "",
+                "unit": None
+            }
+        ],
+        'links': {
+            "Linkedin": "https://www.linkedin.com/"
+        }
+    },
 ]
+
 
 # Write/update dev_db 
 def write_sql_file():
