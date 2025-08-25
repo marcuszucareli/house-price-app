@@ -1,6 +1,5 @@
-from api.api import app
 from tests.conftest import std_model_cases, standard_uuid
-
+import os
 
 def test_status(client):
     response = client.get('/')
@@ -105,6 +104,6 @@ def test_predict(client):
 
     prediction = client.post(f'/predict/{standard_uuid}', json=features)
     prediction = prediction.json()
-
+    
     assert isinstance(prediction['predict']['mape'], float)
     assert isinstance(prediction['predict']['property_price'], float)

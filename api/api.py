@@ -18,8 +18,8 @@ MODEL_FOLDER_NAME = os.getenv('MODEL_FOLDER_NAME')
 def get_model_cached(model_path: str):
     try:
         return mlflow.pyfunc.load_model(model_path)
-    except Exception:
-        raise RuntimeError(f"Error loading model")
+    except Exception as e:
+        raise RuntimeError(f"Error loading model: {e}")
 
 
 # API description
