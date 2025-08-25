@@ -16,7 +16,6 @@ MODEL_FOLDER_NAME = os.getenv('MODEL_FOLDER_NAME')
 # Cache mlflow models
 @lru_cache(maxsize=2)
 def get_model_cached(model_path: str):
-    print(model_path)
     try:
         return mlflow.pyfunc.load_model(model_path)
     except Exception:
@@ -287,13 +286,9 @@ def predict(
     ),
     ):
 
-    print(features)
-    print(model_id)
-    print('-'*70)
-
     # Get model's inputs
     inputs = get_inputs(model_id)
-    
+
     # Validate inputs
     try:
         validate_input_data(inputs.inputs, features.features)

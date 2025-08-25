@@ -15,7 +15,7 @@ def ensure_dir(path: str, clean: bool = False) -> None:
 
 
 def ensure_dev_model(storage):
-    zip_source_path = f'tests/data/{standard_uuid}.zip'
+    zip_source_path = f'./tests/data/{standard_uuid}.zip'
     zip_destination_path = f'{storage}/{standard_uuid}'
     
     ensure_dir(zip_destination_path, clean=True)

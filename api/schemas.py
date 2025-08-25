@@ -218,14 +218,6 @@ def validate_input_data(
                 if not isinstance(value, str):
                     raise TypeError(f"Field '{field}' must be of type str.")
 
-    #     print('-'*70)            
-    #     print('input_def')            
-    #     print(input_def)
-    #     print(required_fields)
-    #     print('-'*70)            
-    # print('required_fields')
-    # print(required_fields)
-
     extra_fields = set(features.keys()) - required_fields
     if extra_fields:
         raise ValueError(
