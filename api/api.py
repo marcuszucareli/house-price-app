@@ -8,6 +8,8 @@ from database.crud import *
 from api.schemas import *
 from functools import lru_cache
 from tests.conftest import standard_uuid
+from fastapi.staticfiles import StaticFiles
+
 
 # Get storage path
 STORAGE_PATH = os.getenv('STORAGE_PATH')
@@ -42,12 +44,12 @@ app = FastAPI(
     }
 )
 
+app.mount("/assets", StaticFiles(directory="./api/assets"), name="assets")
 
 @app.get(
     "/",
     summary="Check API status",
     description="Returns the current status of the API.",
-    # response_description="App is up and running.",
     response_model= StatusResponse,
     tags=["Health"]
 )
@@ -75,7 +77,8 @@ def get_countries():
     return {"countries": countries}
 
 
-@app.get("/cities/",
+@app.get(
+    "/cities/",
     tags=["Consulting"],
     response_model=GetCitiesResponse
 )
@@ -122,8 +125,8 @@ def get_cities(
 def get_models(
     city: str = Query(
         default='all',
-        title='city',
-        description="Filter models by city.",
+        title='city ID',
+        description="Filter models by city ID.",
         openapi_examples={
             "all": {
                 "value": "all",
@@ -131,8 +134,8 @@ def get_models(
                 "description": "Getting all models",
             },
             "city": {
-                "value": "Belo Horizonte",
-                "summary": "",
+                "value": "Q191642",
+                "summary": "São josé dos Campos' ID",
                 "description": "Filtering by city",
             }
         }
@@ -202,6 +205,7 @@ def get_models(
 
 @app.get(
     "/model/{model_id}",
+    tags=["Consulting"],
     response_model=GetModelResponse
 )
 def get_model(model_id: str = Path(
@@ -267,7 +271,7 @@ def get_inputs(model_id: str =
 @app.post(
     "/predict/{model_id}",
     tags=['Predicting'],
-    # response_model=GetInputsResponse
+    response_model=PredictResponse
 )
 def predict(
     features: PredictRequest,

@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 from typing import Optional, Any, Union
 from enum import Enum
 
-
 class StatusResponse(BaseModel):
     status: str = Field(
         default_factory='running',
@@ -21,15 +20,13 @@ class StatusResponse(BaseModel):
 class GetCountriesResponse(BaseModel):
     countries: list[str] = Field(
         default_factory=list,
-        description="List of countries supported by available models, named " \
-        "according to [ISO 3166 standards](https://www.iso.org/" \
-        "iso-3166-country-codes.html)."
+        description="List of countries supported by available models."
     )
 
     model_config={
         'json_schema_extra': {
             "examples": [{
-                "countries": ['Brazil', 'England']
+                "countries": ['Brazil', 'England', 'Norway']
             }]
         }
     }
@@ -38,14 +35,22 @@ class GetCountriesResponse(BaseModel):
 class GetCitiesResponse(BaseModel):
     cities: dict[str, str] = Field(
         default_factory=dict,
-        description="List of cities supported by available models sorted " \
-        "alphabetically."
+        description="Dictionary of cities and their IDs sorted " \
+        "alphabetically. IDs are the "
+        "[wikidata id](https://www.wikidata.org/wiki/Wikidata:Main_Page) " \
+        "of each city."
     )
 
     model_config={
         'json_schema_extra': {
             "examples": [{
-                "cities": ['Belo Horizonte', 'Bergen']
+                "cities": { 
+                    "Belo Horizonte (Minas Gerais)": "Q42800",
+                    "Bergen (Bergen Municipality)": "Q26793",
+                    "Cambridge (Cambridge)": "Q350",
+                    "Oslo (Oslo Municipality)": "Q585",
+                    "São José dos Campos (São Paulo)": "Q191642",
+                    "Três Corações (Minas Gerais)": "Q1439211" }
             }]
         }
     }
@@ -60,7 +65,8 @@ class GetModelsCategory(str, Enum):
 
 
 class ModelItem(BaseModel):
-    id: str = Field(description="Model's id.", examples=['A'])
+    id: str = Field(description="Model's id.",
+                     examples=['55555555-5555-5555-5555-555555555555'])
     flavor: str = Field(description='The library used to create the model.',
                          examples=['sklearn'])
     data_year: int = Field(
@@ -149,9 +155,9 @@ expects different data types when predicting:
 - **int**, **float**, and **bool** are expected to receive values of 
 the corresponding data type.
 - **categorical** inputs expect a string value that must match one of the 
-entries defined in the options field of the same input.
+entries defined in the `options` field of the same input.
 - **map** inputs expect latitude and longitude values to be provided as float
- numbers, using the field names specified in the lat and lng attributes of
+ numbers, using the field names specified in the `lat` and `lng` attributes of
 the input definition."
 
 
@@ -162,9 +168,45 @@ the input definition."
 class PredictRequest(BaseModel):
     features: dict[str, Any]
 
+    model_config={
+        'json_schema_extra': {
+            "examples": [{
+                'features': {
+                    "rooms": 3,
+                    "parking": 2,
+                    "bathrooms": 1,
+                    "area": 90,
+                    "has_multiple_parking_spaces": True,
+                    "neighbourhood": "Jardim Esplanada",
+                    "lat_value": -23.1789,
+                    "lon_value": -45.8869,
+                }
+            }]
+        }
+    }
+
+
+class PredictValues(BaseModel):
+    mape: float = Field(
+        description="Model's MAPE.",
+        example=.11)
+    property_price: float = Field(
+        description="property's predicted price.",
+        example=.11)
 
 class PredictResponse(BaseModel):
-    predict: dict[str, float]
+    predict: PredictValues
+
+    model_config={
+        'json_schema_extra': {
+            "examples": [{
+                'predict': {
+                    "mape": .15,
+                    "property_price": 250_000
+                }
+            }]
+        }
+    }
 
 
 def validate_input_data(
