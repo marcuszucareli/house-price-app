@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: ./api/Dockerfile
+    depends_on:
+      - mlflow_client
     env_file:
       - ./api/.env.dev
     volumes:
@@ -17,7 +19,7 @@ services:
       - "8000:8000"
     networks:
       - app-network
-    command: sh -c "python -m database.init_db && uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload"
+    command: uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload
 
   app:
     build:
@@ -26,7 +28,7 @@ services:
       args:
           APP_ENV: dev
     depends_on:
-      - api
+      - mlflow_client
     env_file:
       - ./app/.env.dev
     volumes:
@@ -58,7 +60,7 @@ services:
       - "5000:5000"
     networks:
       - app-network
-    command: sleep infinity
+    command: sh -c "python -m mlflow_client.setup && sleep infinity"
 
 networks:
   app-network:

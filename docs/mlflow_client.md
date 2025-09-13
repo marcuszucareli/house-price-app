@@ -27,7 +27,7 @@ Ingestion file owns the `make_ingestion` function, responsible for unpacking the
 > ⚠️ **Note:** The `make_ingestion` function supports a single file at a time in the ingestion folder.
 
 ## Setup
-The setup file creates the environment to use the predict endpoint in the dev environment. It is automatically ran when the container starts, but if you need to restore original setup for any reason, use the command bellow on the api container:
+The setup file creates the dev environment (database + storage). It is automatically ran when the container starts, but if you need to restore original setup for any reason, use the command bellow on the api container:
 
 ```bash
 python -m mlflow_client.setup
