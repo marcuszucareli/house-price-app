@@ -71,6 +71,11 @@ Veuillez essayer de recharger la page dans quelques instants.
         'pt': """Avaliar Minha Propriedade""",
         'fr': """Évaluer ma propriété"""
     },
+    "no_coords": {
+        'en': """Choose the property's location on the map""",
+        'pt': """Aponte a localização do imóvel no mapa""",
+        'fr': """Indiquez l'emplacement du bien sur la carte"""
+    },
 }
 
 results = {

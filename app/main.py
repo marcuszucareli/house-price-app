@@ -70,6 +70,9 @@ def update_country():
     st.session_state['model'].reset(
         st.session_state['model']._index['cities'])
     
+    if 'markers' in st.session_state:
+        del st.session_state['markers']
+    
 
 def update_city():
     st.session_state['model'].city = \
@@ -83,7 +86,7 @@ def update_city():
             st.session_state['model']._index['city'])
         
     if 'markers' in st.session_state:
-        st.session_state.markers.clear()
+        del st.session_state['markers']
 
 
 def submit():
@@ -138,14 +141,7 @@ if model.health_check:
 else:
     a, b = st.columns(2, vertical_alignment='center')
     with a:
-        st.markdown(
-            """
-            # We are sorry...
-
-            It looks like our servers are not working right now.
-
-            Try to refresh the page in a few moments.
-            """)
+        st.markdown(main['error']['en'])
     with b:
         st.image("https://cdn-icons-png.flaticon.com/512/9068/9068699.png")
     
@@ -155,7 +151,6 @@ else:
     )
     get_models.clear()
     st.stop()
-
 
 if 'lang' not in st.session_state:
     st.session_state.lang = available_languages['English']
@@ -265,6 +260,7 @@ if has_coordinates:
                 'zoom': st_data['zoom']
             }
         )
+        st.session_state['no_coords'] = False
         st.rerun()
 
 # Input model parameters
@@ -310,4 +306,11 @@ if st.session_state['model'].inputs != None:
             main['button_form'][st.session_state['lang']],
             on_click=submit,
             type='primary',
-            use_container_width=True)
+            use_container_width=True,
+            disabled=True if 'markers' in st.session_state \
+                and st.session_state['markers'] == [] \
+                else False
+        )
+        
+        if 'markers' in st.session_state and st.session_state['markers'] == []:
+            st.warning(main['no_coords'][st.session_state['lang']], icon="⚠️")
