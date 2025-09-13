@@ -1,12 +1,13 @@
 import requests
-import json
 import os
-import logging
 
 API_BASE_URL = os.getenv('API_BASE_URL')
 
 class Models:
-
+    """"
+    Class to call the house-estimate-ai API.
+    """
+    
     def call_api(self, endpoint, params=None, path='', body=None):
         try:
             url = f'{API_BASE_URL}/{endpoint}/{path}'
@@ -18,14 +19,8 @@ class Models:
                 data = response.json()
                 return data[endpoint]
             else:
-                logging.error(response)
                 return None
         except Exception as e:
-            logging.error(f'endpoint: {endpoint}')
-            logging.error(f'params: {params}')
-            logging.error(f'path: {path}')
-            logging.error(f'body: {body}')
-            logging.error(e)
             return None
         
     def __init__(self):

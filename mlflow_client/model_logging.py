@@ -401,9 +401,10 @@ class ModelLogInput(BaseModel):
 Your model has been saved in the {DEV_FOLDER_PATH} folder as {zip_id}.zip.
 To complete your contribution, please follow these steps:
 
+- Run the `test_my_model` method of your ModelLogInput instance.
+- Test your model on the app by making a prediciton.
 - Upload the zip file to the location you specified in the `model_link` parameter.
-- Create a copy of the model contribution template available at `./docs/templates/model_contribution.yml` and fill it out.
-- Open an issue in the project repository and include the completed template.
+- Open an issue in the project repository by filling the model contribution template in https://github.com/marcuszucareli/house-price-app/issues/new?template=model_upload.md
 """
                 )
                 return folder_path
@@ -445,7 +446,6 @@ To complete your contribution, please follow these steps:
         prepare_dir(storage_path)
         prepare_dir(ingestion_path)
 
-        # Caminho do modelo de origem (exemplo)
         model_path_obj = Path(model_path)
 
         # Copy file to ingestion folder
