@@ -20,7 +20,8 @@ def go_home():
 
 if 'go_home' in st.session_state:
     del st.session_state.go_home
-    del st.session_state.lang
+    if 'lang' in st.session_state:
+        del st.session_state.lang
     st.switch_page('main.py')
 
 st.set_page_config(
@@ -29,7 +30,10 @@ st.set_page_config(
     initial_sidebar_state='collapsed'
 )
 
-lang = st.session_state['lang']
+if 'lang' in st.session_state:
+    lang = st.session_state['lang']
+else:
+    lang = 'en'
 
 try:
     mape = round(st.session_state['prediction']['value']['mape'], 2)

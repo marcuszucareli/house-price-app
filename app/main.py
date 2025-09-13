@@ -182,7 +182,7 @@ st.selectbox(
 if st.session_state['model'].country != None:
     st.markdown(main['choose_city'][st.session_state['lang']])
     st.selectbox(
-        'City',
+        '',
         [None] + list(st.session_state['model'].cities.keys()),
         on_change=update_city,
         key='city')
