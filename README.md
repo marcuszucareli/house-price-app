@@ -17,20 +17,20 @@ House Estimate AI is a collaborative project featuring both an **API** and a **w
 - Help beginners in data science contribute to an open source project.
 
 ## 📋 Summary
-- [🚀 Getting Started](#🚀-getting-started)
+- [🚀 Getting Started](#-getting-started)
   1. [Accessing and using the Web App](#accessing-and-using-the-web-app)
   2. [Using the API](#accessing-the-api)
-- [📂 Project structure](#📂-project-structure)
-- [🛠️ Project stack](#🛠️-project-stack)
-- [🤝Contributing](#🤝-contributing)
-- [🎯 To Do](#🎯-to-do)
-- [📄 License](#📄-license)
+- [📂 Project structure](#-project-structure)
+- [🛠️ Project stack](#-project-stack)
+- [🤝Contributing](#-contributing)
+- [🎯 To Do](#-to-do)
+- [📄 License](#-license)
 
 ## 🚀 Getting Started
 
 ### Accessing and using the Web App
 
-1. Start by accessing the application [here](https://house-estimate-ai.uk)
+1. Start by accessing the application [here](https://www.home-estimate-ai.uk/)
 2. Select your preferred language.
 3. Choose the country and city of the property you want to evaluate.
 
@@ -42,7 +42,7 @@ House Estimate AI is a collaborative project featuring both an **API** and a **w
 
 ### Accessing the API
 
-You can access the API documentation, including a **Getting Started tutorial**, [here](https://api.house-estimate-ai.uk/redoc).
+You can access the API documentation, including a **Getting Started tutorial**, [here](https://api.home-estimate-ai.uk/redoc).
 
 ## 📂 Project Structure
 ```
