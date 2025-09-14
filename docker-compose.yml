@@ -29,7 +29,7 @@ services:
       - "8080:8080"
     networks:
       - app-network
-    command: streamlit run ./app/main.py --server.port=8080 --server.address=0.0.0.0
+    command: streamlit run ./app/main.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true
 
   mlflow_client:
     build:
