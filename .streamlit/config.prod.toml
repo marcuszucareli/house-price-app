@@ -3,8 +3,6 @@ port = 8080
 
 headless = true
 
-runOnSave = true
-
-fileWatcherType = "poll"
+runOnSave = false
 
 address = "0.0.0.0"
