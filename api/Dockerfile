@@ -13,5 +13,6 @@ COPY ./database ./database
 COPY ./tests/__init__.py ./tests/__init__.py
 COPY ./tests/api ./tests/api
 COPY ./tests/database ./tests/database
+COPY ./tests/conftest.py ./tests/conftest.py
 
 EXPOSE 8000

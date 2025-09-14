@@ -14,6 +14,7 @@ COPY ./tests/__init__.py ./tests/__init__.py
 COPY ./tests/mlflow_client ./tests/mlflow_client
 COPY ./tests/database ./tests/database
 COPY ./model_development ./model_development
+COPY ./tests/conftest.py ./tests/conftest.py
 
 EXPOSE 5000
 
