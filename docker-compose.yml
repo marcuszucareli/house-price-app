@@ -3,18 +3,17 @@ services:
     build:
       context: .
       dockerfile: ./api/Dockerfile
+    depends_on:
+      - mlflow_client
     env_file:
-      - ./api/.env
+      - /mnt/blockvolume/home-estimate-ai/envs/api/.env
     volumes:
-      - ./api:/service/api
-      - ./database:/service/database
-      - ./tests/api:/service/tests/api
-      - ./tests/database:/service/tests/database
+      - /mnt/blockvolume/home-estimate-ai:/service/volumes
     ports:
       - "8000:8000"
     networks:
       - app-network
-    command: sh -c "python -m database.init_db && uvicorn api.api:app --host 0.0.0.0 --port 8000"
+    command: uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload
 
   app:
     build:
@@ -23,11 +22,9 @@ services:
       args:
           APP_ENV: dev
     depends_on:
-      - api
+      - mlflow_client
     env_file:
-      - ./app/.env
-    volumes:
-      - ./app:/service/app
+      - /mnt/blockvolume/home-estimate-ai/envs/app/.env
     ports:
       - "8080:8080"
     networks:
@@ -39,18 +36,14 @@ services:
       context: .
       dockerfile: ./mlflow_client/Dockerfile
     env_file:
-      - ./mlflow_client/.env
+      - /mnt/blockvolume/home-estimate-ai/envs/mlflow_client/.env
     volumes:
-      - ./mlflow_client:/service/mlflow_client
-      - ./database:/service/database
-      - ./tests/mlflow_client:/service/tests/mlflow_client
-      - ./tests/database:/service/tests/database
-      - ./model_development:/service/model_development
+      - /mnt/blockvolume/home-estimate-ai:/service/volumes
     ports:
       - "5000:5000"
     networks:
       - app-network
-    command: sleep infinity
+    command: sh -c "sleep infinity"
 
 networks:
   app-network:
