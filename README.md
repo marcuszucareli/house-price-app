@@ -1,4 +1,4 @@
-# House Estimate AI (App & API)
+# Home Estimate AI (App & API)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 [![API Docs](https://img.shields.io/badge/api%20docs-redoc-red)](https://api.house-estimate-ai.uk/redoc)
